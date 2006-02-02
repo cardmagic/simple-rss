@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="http://feeds.feedburner.com/~d/styles/rss2full.xsl" type="text/xsl" media="screen"?>
+<?xml-stylesheet href="http://feeds.feedburner.com/~d/styles/itemcontent.css" type="text/css" media="screen"?>
+<!-- generator="wordpress/1.5" -->
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" version="2.0">
+  <channel>
+    <title>Technoblog</title>
+    <link>http://tech.rufy.com</link>
+    <description>Lucas Carlson's jounal of the technical ramblings. Contains tutorials, howto's, and rants and ravings.</description>
+    <pubDate>Thu, 25 Aug 2005 00:16:16 +0000</pubDate>
+    <generator>http://wordpress.org/?v=1.5</generator>
+    <language>en</language>
+    <atom:link xmlns:atom="http://purl.org/atom/ns#" rel="self" href="http://feeds.feedburner.com/rufytech" type="application/rss+xml" />
+    <feedburner:browserFriendly>This is an XML content feed. It is intended to be viewed in a newsreader or syndicated to another site.</feedburner:browserFriendly>
+    <item>
+      <title>some_string.starts_with? “Foo” || some_string.ends_with? “bar.”</title>
+      <link>http://feeds.feedburner.com/rufytech?m=68</link>
+      <comments>http://tech.rufy.com/entry/82#comments</comments>
+      <pubDate>Wed, 24 Aug 2005 13:33:34 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>Programming</category>
+      <category>Ruby</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/82</guid>
+      <description><![CDATA[I also liked:
+
+
+x = s.startswith('Go')
+x = s.endswith('Go')
+
+
+So I made:
+
+
+class String
+  def starts_with?(str)
+    self.index( str ) == 0
+  end
+
+  def ends_with?(str)
+    self.rindex( str ) == self.length - str.length
+  end
+end
+
+
+So you can do this:
+
+
+some_string.starts_with? 'Foo' || some_string.ends_with? 'bar.']]></description>
+      <content:encoded><![CDATA[<p>I also liked:</p>
+	<pre><code>
+x = s.startswith('Go')
+x = s.endswith('Go')
+</code></pre>
+	<p>So I made:</p>
+	<pre><code>
+class String
+  def starts_with?(str)
+    self.index( str ) == 0
+  end
+	
+  def ends_with?(str)
+    self.rindex( str ) == self.length - str.length
+  end
+end
+</code></pre>
+	<p>So you can do this:</p>
+	<pre><code>
+some_string.starts_with? 'Foo' || some_string.ends_with? 'bar.'
+</code></pre>
+
+<p><map name="google_ad_map_HjnZmg3KCS4L1EStAbud17sJePk_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/HjnZmg3KCS4L1EStAbud17sJePk_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_HjnZmg3KCS4L1EStAbud17sJePk_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=HjnZmg3KCS4L1EStAbud17sJePk_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F82"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/82/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/82</feedburner:origLink>
+    </item>
+    <item>
+      <title>if some_object.in? [1, 2, 3]</title>
+      <link>http://feeds.feedburner.com/rufytech?m=67</link>
+      <comments>http://tech.rufy.com/entry/81#comments</comments>
+      <pubDate>Wed, 24 Aug 2005 12:53:46 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>Programming</category>
+      <category>Ruby</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/81</guid>
+      <description><![CDATA[Looking over some Python code, I really really like the syntax:
+
+
+if some_object in [1, 2, 3]:
+  do_something
+
+
+So I wrote this:
+
+
+class Object
+  def in?(collection)
+    collection.respond_to?(:include?) ? collection.include?(self) : false
+  end
+end
+
+
+So you can now do:
+
+
+if some_object.in? [1, 2, 3]
+  do_something
+end]]></description>
+      <content:encoded><![CDATA[<p>Looking over some Python code, I really really like the syntax:</p>
+	<pre><code>
+if some_object in [1, 2, 3]:
+  do_something
+</code></pre>
+	<p>So I wrote this:</p>
+	<pre><code>
+class Object
+  def in?(collection)
+    collection.respond_to?(:include?) ? collection.include?(self) : false
+  end
+end
+</code></pre>
+	<p>So you can now do:</p>
+	<pre><code>
+if some_object.in? [1, 2, 3]
+  do_something
+end
+</code></pre>
+
+<p><map name="google_ad_map_xy10iLjEoZMSBVz1x6zAEe-YQvU_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/xy10iLjEoZMSBVz1x6zAEe-YQvU_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_xy10iLjEoZMSBVz1x6zAEe-YQvU_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=xy10iLjEoZMSBVz1x6zAEe-YQvU_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F81"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/81/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/81</feedburner:origLink>
+    </item>
+    <item>
+      <title>Y Combinator’s 2005 Summer Founders Program: A Complete Dud</title>
+      <link>http://feeds.feedburner.com/rufytech?m=66</link>
+      <comments>http://tech.rufy.com/entry/80#comments</comments>
+      <pubDate>Wed, 10 Aug 2005 18:23:20 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>General</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/80</guid>
+      <description><![CDATA[I know that by writing this I may well be killing any chances at future funding from Paul Graham and Co. over at Y Combinator, but this was downright atrocious. Let me preface this by saying I am personally disappointed because I applied to the Summer Founders Program and was rejected. From what I can [...]]]></description>
+      <content:encoded><![CDATA[<p>I know that by writing this I may well be killing any chances at future funding from Paul Graham and Co. over at <a href="http://ycombinator.com/">Y Combinator</a>, but this was downright atrocious. Let me preface this by saying I am personally disappointed because I applied to the Summer Founders Program and was rejected. From what I can tell, I can reproduce in a weekend what took these people 3 months to accomplish.</p>
+	<p><b>Background</b></p>
+	<p>Paul Graham started a VC for mini startups called Y Combinator. They gave 9 groups $6,000-10,000 PER PERSON to work on any website they wanted for 3 months. My entry was <a href="http://webcollaborator.com">Web Collaborator</a>. During my summer, I created <a href="http://printpromotion.com/">Print Promotion</a>, worked on a top secret project with Adaptive Path that will soon change the way you feel about blogging, and am now working with O&#8217;Reilly on an amazingly innovative project. Quite productive for 3 months.</p>
+	<p><b>Conclusion</b></p>
+	<p>In that same time, 2 of the 9 groups (groups consisted of at least 2-3 people) came up with the following:</p>
+	<ul>
+<li><a href="http://reddit.com/">Reddit</a>: A rip-off of the ideas behind <a href="http://del.ici.ous/">Del.ici.ous<a /> and </a><a href="http://digg.com/">Digg</a> built in Lisp. (there apparently is more to the application than has been released, but I am not impressed so far)</li>
+	<li><a href="http://www.brainguppy.com/">Brain Guppy</a>: A cheap rip-off of <a href="hotornot.com">Hot or Not</a> for narcissistic geeks built in Ruby on Rails.</li>
+	<li><a href="http://stuffguppy.com/">Stuff Guppy</a>: A cheaper rip-off of Hot or Not where you rate whether &#8220;stuff&#8221; is cool or crappy, also built in Ruby on Rails. Their best dud ideas include selling crappy Cafepress t-shirts and showing ads. Question someone should have asked them: who wants to look at crap after 8 hours at work?</li>
+</ul>
+	<p>What do they all have in common?</p>
+	<ul>
+<li>They are all cheap rip-offs of other people&#8217;s ideas</li>
+	<li>They are hardly innovative</li>
+	<li>They have little-to-no technical merit, I can reproduce Stuff Guppy in a weekend. Alone.</li>
+	<li>They are not very popular</li>
+	<li><b>None of these have the potential to be a self-sustaining business</b></li>
+</ul>
+	<p>What a waste of over $30,000 for the above web sites. Some of the sites made during the 24 hours of <a href="http://railsday.com/">Rails Day</a> were better than what these guys came up with. 24 HOURS! I am sorry Paul Graham and Co, but if this is what you have to show, I am totally unimpressed (though I still want the money to work on some ideas of mine :) ).</p>
+	<p>As a friend pointed out, &#8220;the key criterion here seems to be &#8216;would be fun to code&#8217;, not &#8216;people will want to use&#8217; or &#8216;will make money&#8217;&#8221;. Which is terribly ironic since Paul constantly harps on people to focus on the later. Another case of do what I say, not what I do.</p>
+	<p><b>Update</b>: Maybe 3 of 9 isn&#8217;t as big a sample as I thought. I just came across another one: <a href="http://www.clickfacts.com/">ClickFacts</a>. It seems that ClickFacts has attempted to assert itself as an expert on ad fraud. To me though, this seems like they were thinking &#8220;what would Google buy?&#8221;, which is better than the 3 mentioned above but to me it seems cheep and shallow. Just my impression.</p>
+	<p><a href="http://radar.oreilly.com/archives/2005/08/y_combinators_s.html">This account</a> says that &#8220;at least half of the startups in the program are seriously cool&#8221; so maybe I have just seen the bad half.
+</p>
+
+<p><map name="google_ad_map_6KdJ7yKQbjJvQcCka90EEwn44NE_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/6KdJ7yKQbjJvQcCka90EEwn44NE_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_6KdJ7yKQbjJvQcCka90EEwn44NE_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=6KdJ7yKQbjJvQcCka90EEwn44NE_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F80"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/80/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/80</feedburner:origLink>
+    </item>
+    <item>
+      <title>OSCon 2005: Lucas</title>
+      <link>http://feeds.feedburner.com/rufytech?m=65</link>
+      <comments>http://tech.rufy.com/entry/79#comments</comments>
+      <pubDate>Mon, 08 Aug 2005 11:43:47 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>General</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/79</guid>
+      <description><![CDATA[OSCon 2005: Lucas
+  
+  Originally uploaded by x180.
+ 
+
+I was shot at OSCON. Thanks Duncan!]]></description>
+      <content:encoded><![CDATA[<div style="float: right; margin-left: 10px; margin-bottom: 10px;">
+ <a href="http://www.flickr.com/photos/x180/31863860/" title="photo sharing"><img src="http://photos21.flickr.com/31863860_c890933cc7_m.jpg" alt="" style="border: solid 2px #000000;" /></a><br />
+ <br />
+ <span style="font-size: 0.9em; margin-top: 0px;"><br />
+  <a href="http://www.flickr.com/photos/x180/31863860/">OSCon 2005: Lucas</a><br />
+  <br />
+  Originally uploaded by <a href="http://www.flickr.com/people/x180/">x180</a>.<br />
+ </span>
+</div>
+	<p>I was shot at OSCON. Thanks Duncan!<br />
+<br clear="all" />
+</p>
+
+<p><map name="google_ad_map_qm8OINy9NNnaQGhBVqKLf4oRymQ_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/qm8OINy9NNnaQGhBVqKLf4oRymQ_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_qm8OINy9NNnaQGhBVqKLf4oRymQ_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=qm8OINy9NNnaQGhBVqKLf4oRymQ_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F79"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/79/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/79</feedburner:origLink>
+    </item>
+    <item>
+      <title>OSCON 2005: Matz Talks about Yielding to the Power of Blocks in Ruby</title>
+      <link>http://feeds.feedburner.com/rufytech?m=64</link>
+      <comments>http://tech.rufy.com/entry/78#comments</comments>
+      <pubDate>Thu, 04 Aug 2005 08:33:42 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>General</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/78</guid>
+      <description><![CDATA[I am sitting and waiting for Matz to talk about blocks right now. Keep watching, I will post notes as I go.
+
+The room is packed with people even sitting on the floor to get a peak.
+
+Unlike many of the other talks, many people are taking pictures of this one... mainly of the audience. I guess [...]]]></description>
+      <content:encoded><![CDATA[<p>I am sitting and waiting for Matz to talk about blocks right now. Keep watching, I will post notes as I go.</p>
+	<p>The room is packed with people even sitting on the floor to get a peak.</p>
+	<p>Unlike many of the other talks, many people are taking pictures of this one&#8230; mainly of the audience. I guess they find it as interesting as I do that people are crawling over themselves to get to this talk.<br />
+<a id="more-78"></a></p>
+	<ul>
+	<li>The secret of Ruby&#8217;s attraction is blocks</li>
+	</ul>
+	<ul>
+	<li>Last year: No Ruby Track at <span class="caps">OSCON</span></li>
+	<li>Last year: 65 attendees to RubyConf</li>
+	</ul>
+	<ul>
+	<li>This year: Ruby Track at <span class="caps">OSCON</span></li>
+	<li>This year: Ruby tutorials are most popular</li>
+	<li>This year: More than 250 pre-registered for RubyConf</li>
+	</ul>
+	<h3>But Why?</h3>
+	<ul>
+	<li>Hacker Preference &#8211; Paul Graham</li>
+	<li>A Killer Application &#8211; Ruby on Rails
+	<ul>
+	<li>Attractive Enough</li>
+	<li>User Bait</li>
+	<li>Gets people used to the language</li>
+	<li>&#8220;I am sure that Python people will catch up&#8221; (in jest)</li>
+	</ul>
+</li>
+	</ul>
+	<h3>Ruby on Rails</h3>
+	<ul>
+	<li>Claimed more than 10x productivity than typical Java Web Development</li>
+	<li>Convention over Configuration</li>
+	<li>Following <span class="caps">DRY</span> principles</li>
+	</ul>
+	<h3>DRY: Don&#8217;t Repeat Yourself</h3>
+	<ul>
+	<li>One of the most important principles in Programming</li>
+	<li>The source of productivity</li>
+	</ul>
+	<ul>
+	<li>What enables Rails productivity and attracts Alpha Geeks like yourself</li>
+	<li>That something is the dynamic nature inherited from Lisp and Smalltalk</li>
+	<li>In Familiar Syntax</li>
+	</ul>
+	<h3>Block</h3>
+	<ul>
+	<li>Unique and poserful
+	<ul>
+	<li>Makes it very attractive</li>
+	<li>Power of Higher Order Function</li>
+	<li>Closures and Syntax are powerful</li>
+	</ul>
+	</li>
+	<li>CollectionClosureMethod&#8212;Read this essay if you can&#8217;t stand my poor english</li>
+	</ul>
+	<p><code>
+<pre>
+employees.each do |e|
+  e.do_something
+end
+	
+managers = employees.select {|e| e.manager?}
+	
+offices = employees.collect {|e| e.office}
+	
+sorted_employees = employees.sort_by {|e| e.lastname}
+</pre>
+</code></p>
+	<ul>
+	<li>No difference between { } and do &#8230; end except precidence</li>
+	<li>A higher order function is a function that takes another function as an argument</li>
+	<li>C&#8217;s qsort is an example of a higher order function since the function takes a comparison in its argument</li>
+	</ul>
+	<h3>Closure</h3>
+	<ul>
+	<li>Sharing local variables among functions</li>
+	</ul>
+	<p><code>
+<pre>
+def high_paid_employees(employees, limit)
+  employees.collect{|e| e.salary &gt; limit}
+end
+</pre>
+</code></p>
+	<ul>
+	<li>Notice that limit is used <span class="caps">WITHIN</span> the block</li>
+	</ul>
+	<p><code>
+<pre>
+def stack_closure
+  stack = []
+  push = lambda {|x| stack.push(x)}
+  pop = lambda {stack.pop}
+  pop = lambda {stack[-1]}
+  return push, pop, top
+end
+	
+pusher, popper, topper = stack_closures()
+pusher.call(10)
+pusher.call(20)
+popper.call # =&gt; 20
+topper.call # =&gt; 10
+</pre>
+</code></p>
+	<h3>Syntax</h3>
+	<ul>
+	<li>Every language with closures can do the same thing. What&#8217;s the difference? Syntax</li>
+	<li>Lisp and smalltalk&#8217;s syntax are more convoluted</li>
+	<li>Python has something but not as easy to read</li>
+	<li>Ruby&#8217;s syntax for a block and block invocation is different</li>
+	<li>Just add a block at the end of a method call</li>
+	<li>It&#8217;s easy to emulate a new control structure</li>
+	</ul>
+	<h3>Syntax Matters</h3>
+	<p><code>
+<pre>
+# C
+	
+for (int i=0; i&lt;3; i++) {
+  do_something();
+}
+	
+# Ruby
+	
+3.times do
+  do_something
+end
+</pre>
+</code></p>
+	<ul>
+	<li>You might think that the C version is &#8220;macho&#8221; but it is not</li>
+	<li>Ruby is ultimate simplicity</li>
+	</ul>
+	<p><code>
+<pre>
+(setq new-list (mapcar (lambda (e) (do-process e)) list))
+</pre>
+</code></p>
+	<ul>
+	<li>Block covers macro useage in Lisp</li>
+	<li>Hates Smalltalk&#8217;s mixture of braces and parentheses</li>
+	</ul>
+	<h3>Block invocation</h3>
+	<ul>
+	<li>Either: yield, call, or passing functions</li>
+	<li>Passing a block argument with an <code>&#38;</code> in the argument list</li>
+	<li>Why 3 styles of invocation:
+	<ul>
+	<li>Historical reason: yield comes first from <span class="caps">CLU</span></li>
+	<li>Performance reason: plain yield did not need object creation (more efficient)</li>
+	<li>But the argument is more explicit</li>
+	</ul>
+</li>
+	</ul>
+	<h3>Block Usuages</h3>
+	<ul>
+	<li>Iteration (<code>each</code>, <code>upto</code>, <code>downto</code>)</li>
+	<li>Sort and comparison (sort_by, sort, max, max_by)</li>
+	<li>Ensuring post process</li>
+	</ul>
+	<p>Bad way:<br />
+<code>
+<pre>
+  f = open(path)
+  begin
+    ... something with f ...
+  ensure
+    f.close
+  end
+</pre>
+</code></p>
+	<p>Good way<br />
+<code>
+<pre>
+  open(path) do |f|
+    ... something with f ...
+  end
+</pre>
+</code></p>
+	<p><strong> Conditionals (select, detect, reject, collect, find_all, find, delete_if)<br />
+<code>
+<pre>
+  result = []
+  art.each do |x| if x%2  0; push x; end; end
+  ary.collect{|x| x%2  0}
+</pre>
+</code></p>
+	<p></strong> Callbacks<br />
+<strong> Structure (like <span class="caps">XML</span> generation via builder)<br />
+</strong> Enumarable<br />
+** <code>require 'enumerator'; include Enumerable</code> to get several methods for free by defining the each method (18 methods including reject, select, max, etc. for free)<br />
+<code>
+<pre>
+ary = [4,2,1]
+ary.to_enum(:each_with_index).reject { |x,i| i%2==0 } # =&gt; [[4,0], [1,3]]
+</pre>
+</code></p>
+	<ul>
+	<li>You can specify what you want more clearly and cleanly than other languages</li>
+	</ul>
+	<h3>Questions</h3>
+	<ul>
+	<li>What is your blog?
+	<ul>
+	<li><a href="http://www.rubyist.net/~matz/">http://www.rubyist.net/<sub>matz/</a></li>
+	</ul>
+	</li>
+	<li>Slides <span class="caps">URL</span>?
+	<ul>
+	<li><a href="http://www.rubyist.net/~matz/slides/oscon2005/">http://www.rubyist.net/</sub>matz/slides/oscon2005/</a></li>
+	</ul>
+	</li>
+	<li>Can you talk about your plans to change blocks in Ruby 2.0?
+	<ul>
+	<li>We have no plans to change blocks, just the lambda definition (using &rarr; operator instead of <code>lambda</code> which is too long and clumbsy, being a unicode operator)</li>
+	<li>Take &rarr; from Perl 6 since Perl 6 took so much from Ruby ;)</li>
+	</ul>
+	</li>
+	<li>Can you pass multiple blocks into a function?
+	<ul>
+	<li>No, only one. That restriction is not always a bad thing. By restricting to one block it is easier to emulate the control structure. If you want multiple blocks you can pass lambdas as arguments explicitly.</li>
+	</ul>
+	</li>
+	<li>What else is coming up in the near future for Ruby
+	<ul>
+	<li>A faster VM and several changes are planned for real multiple values in Ruby 2</li>
+	</ul>
+	</li>
+	<li>Is there a chance there might be a code browser smalltalk style working with Ruby?
+	<ul>
+	<li>Someone in the community is working on that. There is the Eclipse plugin and FreeRIDE.</li>
+	</ul>
+	</li>
+	<li>Are we going to get any cool new modules in the <span class="caps">STDLIB</span>?
+	<ul>
+	<li>I just don&#8217;t remember, but very few just because it is fairly easy to get the new libraries with Rubygems so we don&#8217;t need to bundle everything. We are planning to make package management like Rubygems standard.</li>
+	</ul>
+	</li>
+	<li>Ruby allows you to add and alias system methods and classes. This is good and bad because I don&#8217;t want other libraries to modify the classes. Anything I can do to protect?
+	<ul>
+	<li>Currently there is no way to prevent that. I have a vague idea to select a namespace that prevents overriding functions and limit it in that file. I haven&#8217;t yet figured out the idea to implement it efficiently, but I can tell that there is this potential problem that I want to solve your concern but don&#8217;t know how yet.</li>
+	</ul>
+</li>
+	</ul>
+	<h3>Notes</h3>
+	<ul>
+	<li>Matz uses Emacs and some version of Linux ons small panasonic laptop</li>
+	</ul>
+
+<p><map name="google_ad_map_gbFcU9elMIp1wtY0qBVzK.qLrJg_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/gbFcU9elMIp1wtY0qBVzK.qLrJg_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_gbFcU9elMIp1wtY0qBVzK.qLrJg_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=gbFcU9elMIp1wtY0qBVzK.qLrJg_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F78"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/78/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/78</feedburner:origLink>
+    </item>
+    <item>
+      <title>OSCON 2005: Business For Geeks</title>
+      <link>http://feeds.feedburner.com/rufytech?m=63</link>
+      <comments>http://tech.rufy.com/entry/77#comments</comments>
+      <pubDate>Mon, 01 Aug 2005 09:49:53 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>General</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/77</guid>
+      <description><![CDATA[I am at Business for Geeks right now waiting for Marc Hedlund to teach me fun stuff.
+
+the ideaDon&rsquo;t talk about how the product works. Tell them about the market.&ldquo;I&rsquo;ve got this idea&rdquo; Obsess about the need I will fulfillTalk about the needYou will never have an idea where everybody likes the idea/company nameDon&rsquo;t sit down [...]]]></description>
+      <content:encoded><![CDATA[<p>I am at <a href="http://conferences.oreillynet.com/cs/os2005/view/e_sess/7062">Business for Geeks</a> right now waiting for <a href="http://conferences.oreillynet.com/cs/os2005/view/e_spkr/604">Marc Hedlund</a> to teach me fun stuff.</p>
+	<h2>the idea</h2>
+	<ul>
+<li>Don&rsquo;t talk about how the product works. Tell them about the market.</li>
+	<li>&ldquo;I&rsquo;ve got this idea&rdquo; </li>
+	<li>Obsess about the need I will fulfill</li>
+	<li>Talk about the need</li>
+	<li>You will never have an idea where everybody likes the idea/company name</li>
+	<li>Don&rsquo;t sit down for a day/week/month to come up with ideas to pick the best one</li>
+	<li>&ldquo;the idea that won&rsquo;t leave you alone&rdquo; &#8211; the one you can&rsquo;t talk yourself into but you can&rsquo;t stop thinking about</li>
+	<li>Doesn&rsquo;t match with a VC model of idea finding</li>
+	<li>Every VC told Google that their idea was stupid, that they had to put banner ads, Google stuck to their ideals</li>
+</ul>
+	<p>Idea that failed: &ldquo;Popular Power&rdquo; </p>
+	<ul>
+<li>Like <span class="caps">SETI</span>, screen saver that does large computing tasks</li>
+	<li>Recycling for computing time</li>
+	<li>First commercial company to do this in 2000</li>
+	<li>Idea came from Lucas Films star wars episode 1: wanted to make an applet that would be used to render one frame of episode 1 on each computer</li>
+	<li>Sold to companies who had many computers behind a firewall</li>
+	<li>Grid computing is being talked about but has not become a successful idea</li>
+	<li>Start with the things that matter to you, is there a need, is there a market?</li>
+</ul>
+	<p>Worked with Flickr, delious, odea, etc.<br />
+Flickr</p>
+	<ul>
+<li>Started as an online game site for girls in canada</li>
+	<li>Chat interface in flash and threw in the photo thing</li>
+	<li>People love the photo and hate the chat</li>
+	<li>Started out having nothing to do with photos</li>
+	<li>1 year working on the game, and in 3 months made the chat room which was launched O&rsquo;Reilly Etech, 2 months later they had another product: photo sharing</li>
+	<li>Kept doing things to see what people like</li>
+	<li>Plan wasn&rsquo;t to defeat Ofoto</li>
+	<li>Could have chosen to be acquired or VC, sold to Google which was a &ldquo;Good idea&rdquo;</li>
+</ul>
+	<p>Bloglines</p>
+	<ul>
+<li>Mark Fletcher started it, having sold egroups to yahoo for millions to fund this</li>
+	<li>Wrote some code to manage his own <span class="caps">RSS</span> feeds</li>
+	<li>Sharing with friends</li>
+	<li>Sharing with wider groups</li>
+</ul>
+	<p>37signals</p>
+	<ul>
+<li>Consulting and web site design</li>
+	<li>Let&rsquo;s build a tool to communicate with clients better: Enter Basecamp</li>
+</ul>
+	<p>Odeo and Delicious</p>
+	<ul>
+<li>what&rsquo;s the business? I don&rsquo;t know, but I think it might be big</li>
+	<li>anything you can come up with can be a feature of yahoo&rsquo;s site</li>
+	<li>what went wrong with Delicious is they took money: when you take VC the company sets a very high bar</li>
+	<li>when no plan of money coming in and a high acquisition price due to taking VC, this is a bad idea</li>
+</ul>
+	<p>Provisional Patent ~ $900</p>
+	<h2>the format</h2>
+	<ul>
+<li>project in your current company</li>
+	<li>sideline, nighttime</li>
+	<li>patents</li>
+	<li>see what happens</li>
+	<li>small/bootstrapped startup company</li>
+	<li>funded startup</li>
+</ul>
+	<h2>the &ldquo;business&rdquo; view</h2>
+	<h2>market research</h2>
+	<ul>
+<li>How to validate an idea, how to come up with information about it</li>
+</ul>
+	<h2>taking the plunge</h2>
+	<ul>
+<li>decision to start a company</li>
+</ul>
+	<h2>team</h2>
+	<ul>
+<li>often get wrong</li>
+</ul>
+	<h2>fundraising</h2>
+	<ul>
+<li>VC process</li>
+	<li>You become a salesperson to sell your company&rsquo;s stock</li>
+	<li>VC&rsquo;s do not start new companies</li>
+	<li>Customers, a customer, consulting, angel investors, bank loans, government grants, yourself</li>
+	<li>Flickr got a government grant</li>
+	<li>Focus on the business first, not the funding</li>
+	<li>Get good press</li>
+	<li>build the product, get users, make money, don&rsquo;t spend it, get to break-even: then and only then do you think about growth plan/vc</li>
+	<li>What does VC get you? money, for a while. credibility (maybe). guidance and review. some introductions. advocates for the company.</li>
+	<li>You are no longer the boss.</li>
+	<li><span class="caps">TRICK</span>: the best way to get vc is not to need it</li>
+	<li>vc-backed competitors (sometimes) need big partners</li>
+	<li>no means maybe, yes means maybe</li>
+	<li>term sheet is a page or two about investing. 3/5 term sheets ended up in a no. After a long while of improvements they turned around and said yes.</li>
+	<li>keep at it, can take 8+ rejections to get a yes</li>
+	<li>5 yes&rsquo;es from VC but didn&rsquo;t get anything but lunch</li>
+	<li>If there are a group of people that offer VC, close as fast as you can as long as you like the people. Close, close, close. Don&rsquo;t wait for the perfect one.</li>
+	<li>Go with someone who is honest but might scare you rather than someone who is always saying great things and will probably fire you when they own the company</li>
+	<li>!!! Funding is more than a full time job</li>
+	<li>Bad idea to do marketing, bizdev, sales yourself</li>
+	<li>10 ftf = 1 term sheeet</li>
+	<li>3 term sheets = 1 financing</li>
+	<li>from pitch to term sheet: 2 months (may be 10 or more meetings)</li>
+	<li>from term sheet to money: 1 month</li>
+	<li>total time to get money: 4-12 months</li>
+	<li>vc is a business, too</li>
+	<li>Tim Oren&rsquo;s blog is good: &ldquo;No Exit: When VC isn&rsquo;t right&rdquo; </li>
+	<li>funders != founder &#038;&#038; investors != inventors</li>
+	<li>august and december &#8211; Many of the investors are on vacation and nothing gets done</li>
+	<li>June is a good time for investments, September/October is a great time to get meetings</li>
+	<li>ppt: 10-15 slides</li>
+	<li>executive summary, 2-3 pages</li>
+	<li>an intro to a vc</li>
+</ul>
+	<h2>the first release</h2>
+	<ul>
+<li>build the simplest thing that could possibly work</li>
+</ul>
+	<h2>&ldquo;marketing&rdquo;</h2>
+	<ul>
+<li>the geek view: &ldquo;google doesn&rsquo;t buy ads, so can I, the product is so great that marketing isn&rsquo;t needed&rdquo; </li>
+	<li>the &ldquo;product marketing handbook for software&rdquo;</li>
+</ul>
+	<h2>success or failure</h2>
+	<ul>
+<li>(acquisition and <span class="caps">IPO </span>|| sustainable business)</li>
+	<li>failing at a startup is extremely hard: laying people off, financial peril, home stress, loss of investor&rsquo;s money</li>
+</ul>
+	<h2>a case study: GripeJuice</h2>
+	<ul>
+<li>create a collective bargaining site for consumers hit with bad customer service</li>
+	<li>a way to keep track of complaints and share experiences</li>
+	<li>very high manual effort for consumer</li>
+	<li>frustration and willingness to pay are disjointed (on the 8th call)</li>
+	<li>tested price point very low</li>
+	<li>probably doesn&rsquo;t solve the problem for people</li>
+	<li>&ldquo;all the biggest complainers will be your biggest customers&rdquo; so you have to deal with the big complainers</li>
+	<li>pursuing it as a free site to attract attention to a company he wants to persue</li>
+</ul>
+	<h2>learning more</h2>
+	<ul>
+<li>on pitches: Brad Feld: The torturous world of PowerPoint: http://feld.com/blog/</li>
+	<li>VentureBlog: Presenting Your Company &#8211; http://www.ventureblog.com/</li>
+	<li>Joel on Software &#8211; http://joelonsoftware.com/</li>
+	<li>Eric Sink: the Business of Software &#8211; http://software.ericsink.com/bos/Business_of_Software.html</li>
+	<li>Book: What the Numbers Say</li>
+	<li>Book: Art of the Start &#8211; http://garage.com/</li>
+</ul>
+
+<p><map name="google_ad_map_5740EPipvYfjFzcmyiYa3R3sHj4_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/5740EPipvYfjFzcmyiYa3R3sHj4_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_5740EPipvYfjFzcmyiYa3R3sHj4_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=5740EPipvYfjFzcmyiYa3R3sHj4_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F77"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/77/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/77</feedburner:origLink>
+    </item>
+    <item>
+      <title>Does Ruby on Rails scale? A clear and definitive answer</title>
+      <link>http://feeds.feedburner.com/rufytech?m=62</link>
+      <comments>http://tech.rufy.com/entry/76#comments</comments>
+      <pubDate>Thu, 28 Jul 2005 23:25:36 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>Programming</category>
+      <category>Ruby</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/76</guid>
+      <description><![CDATA[The last post on this page ends with "I'll just have to do the damn tests myself". What tests? I never knew there was a set of tests that could be done against any framework or programming language to definitively say it "scales". If I am wrong, please correct me.
+
+I don't think anyone would argue [...]]]></description>
+      <content:encoded><![CDATA[<p>The last post on <a href="http://discuss.joelonsoftware.com/default.asp?joel.3.159134">this page</a> ends with &#8220;I&#8217;ll just have to do the damn tests myself&#8221;. What tests? I never knew there was a set of tests that could be done against any framework or programming language to definitively say it &#8220;scales&#8221;. If I am wrong, please correct me.</p>
+	<p>I don&#8217;t think anyone would argue that the following languages couldn&#8217;t be used to scale a website since they have all been used in commercial web applications: C, C++, Java, PHP, Perl, Python, Lisp. If all of those languages have been used to build &#8220;scalable&#8221; websites, then why would anyone think that Ruby couldn&#8217;t scale? What would have to be so fundamentally wrong with Ruby that make people so hesitant? Is it because it is interpreted? So are PHP, Perl, and Python. Is it because there are no extremely high traffic sites built with Ruby to date? It was just the other day that no extremely high traffic sites were built in PHP or Python either.</p>
+	<p>No, <i>scalability is not about the language</i>. To ask if a programming language can scale or not is equivalent to asking if a certain written language can be used to write an epic novel. Very very few mature modern languages can&#8217;t scale for web sites (I concede that BASIC might be one of them). Similar discussion has <a href="http://www.loudthinking.com/arc/000485.html">happened here</a>.</p>
+	<p>Scalability (with regard to web sites) is a set of design patterns and practices, a set of ideas used to implement robustness which include: statelessness, share-nothingness, and horizontal distribution. If you want to know whether a given website will scale to millions of users, check to see if it uses these foundations. Almost all the giant websites these days use these them: Google, Amazon, Ebay, Livejournal etc.</p>
+	<p>Given this information, one might restate the vague and senseless question of &#8220;Does Ruby on Rails scale?&#8221; into more tangible questions:</p>
+	<ul>
+<li>Is Rails stateless?</li>
+	<li>Does Rails share nothing?</li>
+	<li>Does Rails scale horizontally?</li>
+	<li>etc.</li>
+</ul>
+	<p>As soon as you ask this more refined subset of questions however, you quickly realize that you&#8217;ve been heading down the wrong path by asking if a web framework &#8220;scales&#8221;. These questions simply don&#8217;t have one clear answer. <i>Is Rails stateless?</i> You can make a Rails app statefull or stateless. <i>Does Rails scale horizontally?</i> You can make it scale horizontally if you know what you are doing.</p>
+	<p>Realizing that the question was phrased incorrectly, let&#8217;s attempt it once again:</p>
+	<ul>
+<li>Does Rails prevent statelessness?</li>
+	<li>Does Rails prevent sharing nothing?</li>
+	<li>Does Rails prevent scaling horizontally?</li>
+	<li>etc.</li>
+</ul>
+	<p>The answer to all of these is a resounding no. Abstracting out the root of these questions, we finally arrive at a single question with a single answer:</p>
+	<p><strong>Question: Does anything in Rails prevent you from implementing the design patterns used to scale websites for many users?</strong><strong>Answer: No.</strong></p>
+	<p>This is exactly what David Hansson means by saying <a href="http://www.loudthinking.com/arc/000479.html">it&#8217;s boring to scale with Ruby on Rails</a>. This is also why I can&#8217;t imagine a test you can do against a framework to see if it can scale. You can&#8217;t do any test that looks for a positive outcome because the scalability of a website is highly dependent on how the site was implemented. You can however look for any roadblocks to the common design patterns, and approached this way you can even ask people familiar with the framework your questions and get back reasonable answers.
+</p>
+
+<p><map name="google_ad_map_Vq.QktKEYCGpb6iP.ZpM512K2sE_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/Vq.QktKEYCGpb6iP.ZpM512K2sE_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_Vq.QktKEYCGpb6iP.ZpM512K2sE_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=Vq.QktKEYCGpb6iP.ZpM512K2sE_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F76"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/76/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/76</feedburner:origLink>
+    </item>
+    <item>
+      <title>Executing interactive system commands in Ruby</title>
+      <link>http://feeds.feedburner.com/rufytech?m=61</link>
+      <comments>http://tech.rufy.com/entry/75#comments</comments>
+      <pubDate>Sun, 24 Jul 2005 01:26:29 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>Programming</category>
+      <category>Ruby</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/75</guid>
+      <description><![CDATA[Following a Ruby Talk thread about how to interactively run shell commands, I think I've finally got it. Let's say you want to run a command, answer the first question it gives you, and get the output.
+
+
+def run(command, answer='')
+	IO.popen('-', 'r+') do |io|
+		if io.nil?
+			Process.setsid
+			exec command
+		else
+			io.puts answer
+			return io.readlines
+		end
+	end
+end
+
+
+Hope this helps anybody looking for the answer. An example [...]]]></description>
+      <content:encoded><![CDATA[<p>Following a <a href="http://www.ruby-talk.org/cgi-bin/scat.rb/ruby/ruby-talk/64127">Ruby Talk thread</a> about how to interactively run shell commands, I think I&#8217;ve finally got it. Let&#8217;s say you want to run a command, answer the first question it gives you, and get the output.</p>
+	<p><code>
+<pre>
+def run(command, answer='')
+	IO.popen('-', 'r+') do |io|
+		if io.nil?
+			Process.setsid
+			exec command
+		else
+			io.puts answer
+			return io.readlines
+		end
+	end
+end
+</pre>
+</code></p>
+	<p>Hope this helps anybody looking for the answer. An example of how to use this code:</p>
+	<p><code>
+<pre>run('sudo whoami', user_password) # returns 'root'</pre>
+</code>
+</p>
+
+<p><map name="google_ad_map_ZG0mRqFW.wmHUwexoDgjtHr.cHI_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/ZG0mRqFW.wmHUwexoDgjtHr.cHI_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_ZG0mRqFW.wmHUwexoDgjtHr.cHI_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=ZG0mRqFW.wmHUwexoDgjtHr.cHI_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F75"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/75/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/75</feedburner:origLink>
+    </item>
+    <item>
+      <title>Lisp on Rails</title>
+      <link>http://feeds.feedburner.com/rufytech?m=60</link>
+      <comments>http://tech.rufy.com/entry/74#comments</comments>
+      <pubDate>Tue, 19 Jul 2005 12:32:21 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>Programming</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/74</guid>
+      <description><![CDATA[I know there is is some toying around with Lisp on Rails like stuff (lisp-on-lines), but that is a little too Lispy for me just yet. Rather, what do you think of this? Worth exploring more? Should I light up the midnight flame to get a proof-of-concept version on Lisp on Rails working (/me *drools* [...]]]></description>
+      <content:encoded><![CDATA[<p>I know there is is some toying around with Lisp on Rails like stuff (<a href="http://paste.lisp.org/display/8912">lisp-on-lines</a>), but that is a little too Lispy for me just yet. Rather, what do you think of this? Worth exploring more? Should I light up the midnight flame to get a proof-of-concept version on Lisp on Rails working (/me *drools* at the thought of machine code with the flexibility of Ruby).</p>
+	<p>Some ideas that would be great include adding continuations and being able to have a self-containted file (as in the example that follows) for those times when you really only want a couple controllers and a couple actions.</p>
+	<p><code>
+<pre>
+(load 'lisp-on-rails')
+	
+(model Person
+  (has-many :employees)
+  (belongs-to :company)
+)
+	
+(model Teenager (Person)
+  (has-many :skateboards)
+)
+	
+(controller people
+  (scaffold :people)
+)
+	
+(controller foo
+  (action bar
+    (set 'person (Person find :first by :id (params :id)))
+	
+    (redirect-to :action you :id (person :name))
+  )
+	
+  (action you
+    (render :text (params :id))
+  )
+	
+  (continuation registration
+    (set 'person (Person new
+      :name (get :name)
+      :email (get :email))
+    )
+    (redirect-to :action bar :id (person :id))
+  )
+)
+	
+(start-server)
+</pre>
+</code>
+</p>
+
+<p><map name="google_ad_map_edkIGtXYgjEEhHpaDVbHEQQiu9k_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/edkIGtXYgjEEhHpaDVbHEQQiu9k_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_edkIGtXYgjEEhHpaDVbHEQQiu9k_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=edkIGtXYgjEEhHpaDVbHEQQiu9k_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F74"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/74/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/74</feedburner:origLink>
+    </item>
+    <item>
+      <title>A wish: Abolition of passing data with flags and symbol-like options when calling Unix programs</title>
+      <link>http://feeds.feedburner.com/rufytech?m=59</link>
+      <comments>http://tech.rufy.com/entry/73#comments</comments>
+      <pubDate>Tue, 19 Jul 2005 00:16:03 +0000</pubDate>
+      <dc:creator>Lucas Carlson</dc:creator>
+      <category>General</category>
+      <guid isPermaLink="false">http://tech.rufy.com/entry/73</guid>
+      <description><![CDATA[I wish I could call every program on the command line like this:
+
+mysql -v :user foo :password bar :host rufy.com :port 3306
+
+For me, this is much easier to type than what I would currently need to do:
+
+mysql -v --user foo --password bar --host rufy.com --port 3306
+
+The difference between -- and : is huge for me [...]]]></description>
+      <content:encoded><![CDATA[<p>I wish I could call every program on the command line like this:</p>
+	<pre>mysql -v :user foo :password bar :host rufy.com :port 3306</pre>
+	<p>For me, this is much easier to type than what I would currently need to do:</p>
+	<pre>mysql -v --user foo --password bar --host rufy.com --port 3306</pre>
+	<p>The difference between &#8212; and : is huge for me for two reasons:</p>
+	<ol>
+<li>One character is much easier to type than two characters which makes a big difference given the number of times I run commands on the command line</li>
+	<li>Colons are much more accessible in my usual range of typing than two dashes</li>
+</ol>
+	<p>Plus, if everyone used colons like this it would be a lot easier to explain symbols in Ruby and Lisp to the uninitiated.</p>
+	<p>I hate it that -pPassword specifies the password and -P 3306 specifies the port. I hate that -h specifies the host and &#8211;help calls help. I like flags without data (ps -aux for example). Flags with data are inconsistent, cumbersome and a steep learning curve for Unix beginners. I think they should be abolished. If flags with data were abolished, there would be no reason for -h to return anything but help, since if it wanted data you would use :h.</p>
+	<p>Along with smart auto-completion that getopt_long() currently provides, you could do this:</p>
+	<pre>mysql -v :u foo :pa bar :h rufy.com :po 3306</pre>
+	<p>Which is a couple characters longer, yet light-years easier to explain and remember than the way you have to do it now:</p>
+	<pre>mysql -v -u foo -pbar -h rufy.com -P 3306</pre>
+	<p>Anyone know how I can alias a colon to work along side the double-dash in getopt_long()?
+</p>
+
+<p><map name="google_ad_map_yYGQe48WBMTnJpP7WEECe6fRYDM_"><area shape="rect" href="http://imageads.googleadservices.com/pagead/imgclick/yYGQe48WBMTnJpP7WEECe6fRYDM_?pos=0" coords="1,2,367,28"/><area shape="rect" href="http://services.google.com/feedback/abg" coords="384,10,453,23"/></map><img usemap="#google_ad_map_yYGQe48WBMTnJpP7WEECe6fRYDM_" border="0" src="http://imageads.googleadservices.com/pagead/ads?format=468x30_aff_img&client=ca-pub-8531813895929183&channel=2762548411&output=png&cuid=yYGQe48WBMTnJpP7WEECe6fRYDM_&url=http%3A%2F%2Ftech.rufy.com%2Fentry%2F73"/></p>]]></content:encoded>
+      <wfw:commentRSS>http://tech.rufy.com/entry/73/feed/</wfw:commentRSS>
+      <feedburner:origLink>http://tech.rufy.com/entry/73</feedburner:origLink>
+    </item>
+  </channel>
+</rss>
+

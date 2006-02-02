@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:dc="http://purl.org/dc/elements/1.1/"
+xmlns="http://my.netscape.com/rdf/simple/0.9/">
+
+<channel>
+<title>Slashdot</title>
+<link>http://slashdot.org/</link>
+<description>News for nerds, stuff that matters</description>
+<dc:date>2005-09-09T02:52:31-07:00</dc:date>
+</channel>
+
+<image>
+<title>Slashdot</title>
+<url>http://images.slashdot.org/topics/topicslashdot.gif</url>
+<link>http://slashdot.org/</link>
+</image>
+
+<item>
+<title>JBoss - A Developer's Notebook</title>
+<link>http://books.slashdot.org/article.pl?sid=05/08/29/1319236&amp;from=rss</link>
+<dc:date>2005-09-09T02:52:31-07:00</dc:date>
+</item>
+
+<item>
+<title>Apple Hedges Its Bet on New Intel Chips</title>
+<link>http://hardware.slashdot.org/article.pl?sid=05/08/29/1314219&amp;from=rss</link>
+</item>
+
+<item>
+<title>Beowulf Pioneer Lured From Cal Tech to LSU</title>
+<link>http://slashdot.org/article.pl?sid=05/08/29/1035240&amp;from=rss</link>
+</item>
+
+<item>
+<title>Google Talk Claims Openness, Lacks S2S Support</title>
+<link>http://it.slashdot.org/article.pl?sid=05/08/29/1022242&amp;from=rss</link>
+</item>
+
+<item>
+<title>The End of the Bar Code</title>
+<link>http://slashdot.org/article.pl?sid=05/08/29/1020220&amp;from=rss</link>
+</item>
+
+<item>
+<title>2.6.13 Linux Kernel Released</title>
+<link>http://linux.slashdot.org/article.pl?sid=05/08/29/0334205&amp;from=rss</link>
+</item>
+
+<item>
+<title>HOWTO: The Anti-Printer</title>
+<link>http://hardware.slashdot.org/article.pl?sid=05/08/29/1016204&amp;from=rss</link>
+</item>
+
+<item>
+<title>OSDL Skeptical Of Joint Study with Microsoft</title>
+<link>http://linux.slashdot.org/article.pl?sid=05/08/29/0625224&amp;from=rss</link>
+</item>
+
+<item>
+<title>New Mad Cow Test on the Horizon?</title>
+<link>http://science.slashdot.org/article.pl?sid=05/08/29/0619259&amp;from=rss</link>
+</item>
+
+<item>
+<title>Coffee A Health Drink?</title>
+<link>http://science.slashdot.org/article.pl?sid=05/08/29/0342207&amp;from=rss</link>
+</item>
+
+<textinput>
+<title>Search Slashdot</title>
+<description>Search Slashdot stories</description>
+<name>query</name>
+<link>http://slashdot.org/search.pl</link>
+</textinput>
+
+</rdf:RDF>
