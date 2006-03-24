@@ -122,9 +122,13 @@ class SimpleRSS
 		tag.to_s.gsub(':','_').intern
 	end
 	
-	def unescape(content)
-		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
-	end
+  def unescape(content)
+  	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/n then
+  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
+  	else
+  		content
+  	end
+  end
 end
 
 class SimpleRSSError < StandardError
