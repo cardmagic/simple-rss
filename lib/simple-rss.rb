@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.1"
+  VERSION = "1.2"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -23,13 +23,14 @@ class SimpleRSS
 
 	@@item_tags = [
 		:id,
-		:title, :link,
+		:title, :link, :'link+alternate', :'link+self', :'link+edit', :'link+replies',
 		:author, :contributor,
 		:description, :summary, :content, :'content:encoded', :comments,
 		:pubDate, :published, :updated, :expirationDate, :modified, :'dc:date',
 		:category, :guid,
 		:'trackback:ping', :'trackback:about',
-		:'dc:creator', :'dc:title', :'dc:subject', :'dc:rights', :'dc:publisher'
+		:'dc:creator', :'dc:title', :'dc:subject', :'dc:rights', :'dc:publisher',
+		:'feedburner:origLink'
 	]
 
 	def initialize(source)
@@ -93,12 +94,25 @@ class SimpleRSS
 		@source.scan( %r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi ) do |match|
 			item = Hash.new
 			@@item_tags.each do |tag|
-				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-					nil
-				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
-					nil
+			  if tag.to_s.include?("+")
+			    tag_data = tag.to_s.split("+")
+			    tag = tag_data[0]
+			    rel = tag_data[1]
+			    
+  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+            nil
+  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
+  				  nil
+  				end
+  				item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, $3, $4) if $3 || $4
+		    else
+  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+  					nil
+  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
+  					nil
+  				end
+  				item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
 				end
-				item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
 			end
 			def item.method_missing(name, *args) self[name] end
 			@items << item
