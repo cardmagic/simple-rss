@@ -140,7 +140,7 @@ class SimpleRSS
   	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/n then
   		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
   	else
-  		content
+  		content.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
   	end
   end
 end
