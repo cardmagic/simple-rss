@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.2.1"
+  VERSION = "1.2.2"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -36,7 +36,7 @@ class SimpleRSS
 	def initialize(source, options={})
 		@source = source.respond_to?(:read) ? source.read : source.to_s
 		@items = Array.new
-    @options = options
+    @options = Hash.new.update(options)
     
 		parse
 	end
@@ -86,8 +86,8 @@ class SimpleRSS
 			
 			if $2 || $3
         tag_cleaned = clean_tag(tag)
-        eval %{ @#{ tag_cleaned } = clean_content(tag, $2, $3) }
-        self.class.class_eval %{ attr_reader :#{ tag_cleaned } } unless @options[:marshalable]
+        instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
+        self.class.send(:attr_reader, tag_cleaned)
 			end
 		end
 
