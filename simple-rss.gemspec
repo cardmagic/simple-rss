@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "simple-rss"
-  s.version = "1.2"
+  s.version = "1.2.1"
   s.date = "2009-02-25"
   s.summary = "A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. It is designed to be backwards compatible with the standard RSS parser, but will never do RSS generation."
   s.email = "lucas@rufy.com"

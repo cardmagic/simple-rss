@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.2"
+  VERSION = "1.2.1"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -33,10 +33,11 @@ class SimpleRSS
 		:'feedburner:origLink'
 	]
 
-	def initialize(source)
+	def initialize(source, options={})
 		@source = source.respond_to?(:read) ? source.read : source.to_s
 		@items = Array.new
-
+    @options = options
+    
 		parse
 	end
 
@@ -59,8 +60,8 @@ class SimpleRSS
 		end
 
 		# The strict attribute is for compatibility with Ruby's standard RSS parser
-		def parse(source, do_validate=true, ignore_unknown_element=true, parser_class=false)
-			new source
+		def parse(source, options={})
+			new source, options
 		end
 	end
 
@@ -86,7 +87,7 @@ class SimpleRSS
 			if $2 || $3
         tag_cleaned = clean_tag(tag)
         eval %{ @#{ tag_cleaned } = clean_content(tag, $2, $3) }
-        self.class.class_eval %{ attr_reader :#{ tag_cleaned } }
+        self.class.class_eval %{ attr_reader :#{ tag_cleaned } } unless @options[:marshalable]
 			end
 		end
 
