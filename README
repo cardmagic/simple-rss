@@ -32,10 +32,11 @@ The parser does not care about the correctness of the XML as it does not use an 
    SimpleRSS.feed_tags << :some_new_tag
    SimpleRSS.item_tags << :"item+myrel" # this will extend SimpleRSS to be able to parse RSS items or ATOM entries that have a rel specified, common in many blogger feeds
    SimpleRSS.item_tags << :"feedburner:origLink" # this will extend SimpleRSS to be able to parse RSS items or ATOM entries that have a specific pre-tag specified, common in many feedburner feeds
-
+   SimpleRSS.item_tags << :"media:content#url" # this will grab the url attribute of the media:content tag 
 
 == Authors
 * Lucas Carlson  (mailto:lucas@rufy.com)
+* Herval Freire (mailto:hervalfreire@gmail.com)
 
 Inspired by Blagg (http://www.raelity.org/lang/perl/blagg) from Rael Dornfest.
 
