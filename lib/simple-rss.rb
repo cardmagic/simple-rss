@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.2.2"
+  VERSION = "1.2.3"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -30,7 +30,11 @@ class SimpleRSS
 		:category, :guid,
 		:'trackback:ping', :'trackback:about',
 		:'dc:creator', :'dc:title', :'dc:subject', :'dc:rights', :'dc:publisher',
-		:'feedburner:origLink'
+		:'feedburner:origLink',
+		:'media:content#url', :'media:content#type', :'media:content#height', :'media:content#width',
+		:'media:title', :'media:thumbnail#url', :'media:thumbnail#height', :'media:thumbnail#width',
+		:'media:credit', :'media:credit#role',
+		:'media:category', :'media:category#scheme'
 	]
 
 	def initialize(source, options={})
@@ -106,6 +110,16 @@ class SimpleRSS
   				  nil
   				end
   				item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, $3, $4) if $3 || $4
+  			elsif tag.to_s.include?("#")
+			    tag_data = tag.to_s.split("#")
+			    tag = tag_data[0]
+			    attrib = tag_data[1]
+  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+            nil
+  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
+  				  nil
+  				end
+  				item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
 		    else
   				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
   					nil

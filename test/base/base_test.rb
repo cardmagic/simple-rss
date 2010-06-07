@@ -3,6 +3,7 @@ class BaseTest < Test::Unit::TestCase
 	def setup
 		@rss09 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss09.rdf')
 		@rss20 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss20.xml')
+		@media_rss = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/media_rss.xml')
 		@atom = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/atom.xml')
 	end
 	
@@ -28,6 +29,26 @@ class BaseTest < Test::Unit::TestCase
     assert_equal Time.parse("Fri Sep 09 02:52:31 PDT 2005"), @rss09.channel.dc_date
 	end
 
+	def test_media_rss
+		assert_equal 20, @media_rss.items.size
+		assert_equal "Uploads from herval", @media_rss.title
+		assert_equal "http://www.flickr.com/photos/herval/", @media_rss.channel.link
+		assert_equal "http://www.flickr.com/photos/herval/4671960608/", @media_rss.items.first.link
+		assert_equal "http://www.flickr.com/photos/herval/4671960608/", @media_rss.items.first[:link]
+		assert_equal "http://farm5.static.flickr.com/4040/4671960608_10cb945d5c_o.jpg", @media_rss.items.first.media_content_url
+		assert_equal "image/jpeg", @media_rss.items.first.media_content_type
+		assert_equal "3168", @media_rss.items.first.media_content_height
+		assert_equal "4752", @media_rss.items.first.media_content_width
+		assert_equal "Woof?", @media_rss.items.first.media_title
+		assert_equal "http://farm5.static.flickr.com/4040/4671960608_954d2297bc_s.jpg", @media_rss.items.first.media_thumbnail_url
+		assert_equal "75", @media_rss.items.first.media_thumbnail_height
+		assert_equal "75", @media_rss.items.first.media_thumbnail_width
+		assert_equal "herval", @media_rss.items.first.media_credit
+		assert_equal "photographer", @media_rss.items.first.media_credit_role
+		assert_equal "pets frodo", @media_rss.items.first.media_category
+		assert_equal "urn:flickr:tags", @media_rss.items.first.media_category_scheme
+	end
+	
 	def test_rss20
 		assert_equal 10, @rss20.items.size
 		assert_equal "Technoblog", @rss20.title
