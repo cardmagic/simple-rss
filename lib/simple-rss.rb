@@ -119,7 +119,15 @@ class SimpleRSS
   				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
   				  nil
   				end
-  				item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
+  				
+  				# MM2: Account for attributes on the item/entry tag
+  				if tag == "item" || tag == "entry"
+  				  if match[2] =~ /#{attrib}=['"](.*)['"]/
+  				    item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $1) 
+  				  end
+  				else  				
+  				  item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
+  				end
 		    else
   				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
   					nil
