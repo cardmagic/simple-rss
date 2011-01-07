@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.has_rdoc = true
   s.authors = ["Lucas Carlson"]
   s.files = ["install.rb", "lib", "lib/simple-rss.rb", "LICENSE", "Rakefile", "README", "simple-rss.gemspec", "test", "test/base", "test/base/base_test.rb", "test/data", "test/data/atom.xml", "test/data/not-rss.xml", "test/data/rss09.rdf", "test/data/rss20.xml", "test/test_helper.rb"]
+  s.rubyforge_project = 'simple-rss'
 end
