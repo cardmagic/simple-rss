@@ -69,8 +69,6 @@ class SimpleRSS
 		end
 	end
 
-	private
-
 	def parse
 	  raise SimpleRSSError, "Poorly formatted feed" unless @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>}mi
 	  
