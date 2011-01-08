@@ -1,6 +1,6 @@
 require 'rbconfig'
 require 'find'
-require 'fileutils'
+require 'ftools'
 
 include Config
 
