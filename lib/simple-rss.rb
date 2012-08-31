@@ -91,7 +91,7 @@ class SimpleRSS
 			if $2 || $3
         tag_cleaned = clean_tag(tag)
         instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
-        self.class.send(:attr_reader, tag_cleaned)
+        self.class.class_eval("attr_reader :#{ tag_cleaned }")
 			end
 		end
 
@@ -152,11 +152,11 @@ class SimpleRSS
 	end
 	
   def unescape(content)
-  	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/un then
-  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/u,'').strip
-  	else
-  		content.gsub(/(<!\[CDATA\[|\]\]>)/u,'').strip
-  	end
+	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/ then
+		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
+	else
+		content.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
+	end
   end
 end
 
