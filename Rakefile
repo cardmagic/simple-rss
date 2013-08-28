@@ -1,10 +1,11 @@
 require 'rubygems'
+require 'bundler/setup'
 require 'rake'
 require 'rake/testtask'
-require 'rake/rdoctask'
-require 'rake/gempackagetask'
+require 'rdoc/task'
+require 'rubygems/package_task'
 require 'rake/contrib/rubyforgepublisher'
-require File.dirname(__FILE__) + '/lib/simple-rss'
+require './lib/simple-rss'
 
 PKG_VERSION = SimpleRSS::VERSION
 PKG_NAME = "simple-rss"
@@ -76,7 +77,7 @@ spec = Gem::Specification.new do |s|
   s.homepage = "http://simple-rss.rubyforge.org/"
 end
 
-Rake::GemPackageTask.new(spec) do |pkg|
+Gem::PackageTask.new(spec) do |pkg|
   pkg.need_zip = true
   pkg.need_tar = true
 end
