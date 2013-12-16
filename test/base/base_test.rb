@@ -68,5 +68,12 @@ class BaseTest < Test::Unit::TestCase
 	
 	def test_bad_feed
 	  assert_raise(SimpleRSSError) { SimpleRSS.parse(open(File.dirname(__FILE__) + '/../data/not-rss.xml')) }
-	end
+  end
+
+  def test_multi_category
+    assert_equal "Ruby", @rss20.items.first.category
+    assert_equal 2, @rss20.items.first.categories.size
+    assert_equal true, @rss20.items.first.categories.include?("Programming")
+    assert_equal true, @rss20.items.first.categories.include?("Ruby")
+  end
 end
