@@ -152,10 +152,10 @@ class SimpleRSS
 	end
 	
   def unescape(content)
-  	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/un then
-  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/u,'').strip
+  	if content.force_encoding("binary") =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/n then
+  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
   	else
-  		content.gsub(/(<!\[CDATA\[|\]\]>)/u,'').strip
+  		content.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
   	end
   end
 end
