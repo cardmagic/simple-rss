@@ -1,14 +1,16 @@
-== Welcome to Simple RSS
+## Welcome to Simple RSS
 
-Simple RSS is a simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. It is designed to be backwards compatible with the standard RSS parser, but will never do RSS generation.
+Simple RSS is a simple, flexible, extensible, and liberal RSS and Atom reader
+for Ruby. It is designed to be backwards compatible with the standard RSS
+parser, but will never do RSS generation.
 
-== Download
+## Download
 
 * gem install simple-rss
-* http://rubyforge.org/projects/simple-rss
-* svn co http://rufy.com/svn/simple-rss/trunk
+* https://github.com/cardmagic/simple-rss
+* git clone git@github.com:cardmagic/simple-rss.git
 
-=== Usage
+### Usage
 The API is similar to Ruby's standard RSS parser:
 
     require 'rubygems'
@@ -29,16 +31,17 @@ But since the parser can read Atom feeds as easily as RSS feeds, there are optio
 
 The parser does not care about the correctness of the XML as it does not use an XML library to read the information. Thus it is flexible and allows for easy extending via:
 
-   SimpleRSS.feed_tags << :some_new_tag
-   SimpleRSS.item_tags << :"item+myrel" # this will extend SimpleRSS to be able to parse RSS items or ATOM entries that have a rel specified, common in many blogger feeds
-   SimpleRSS.item_tags << :"feedburner:origLink" # this will extend SimpleRSS to be able to parse RSS items or ATOM entries that have a specific pre-tag specified, common in many feedburner feeds
-   SimpleRSS.item_tags << :"media:content#url" # this will grab the url attribute of the media:content tag 
+    SimpleRSS.feed_tags << :some_new_tag
+    SimpleRSS.item_tags << :"item+myrel" # this will extend SimpleRSS to be able to parse RSS items or ATOM entries that have a rel specified, common in many blogger feeds
+    SimpleRSS.item_tags << :"feedburner:origLink" # this will extend SimpleRSS to be able to parse RSS items or ATOM entries that have a specific pre-tag specified, common in many feedburner feeds
+    SimpleRSS.item_tags << :"media:content#url" # this will grab the url attribute of the media:content tag 
 
-== Authors
+## Authors
+
 * Lucas Carlson  (mailto:lucas@rufy.com)
 * Herval Freire (mailto:hervalfreire@gmail.com)
 
-Inspired by Blagg (http://www.raelity.org/lang/perl/blagg) from Rael Dornfest.
+Inspired by [Blagg](http://www.raelity.org/lang/perl/blagg) from Rael Dornfest.
 
 This library is released under the terms of the GNU LGPL.
 

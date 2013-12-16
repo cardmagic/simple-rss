@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.2.3"
+  VERSION = "1.3.0"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -91,7 +91,7 @@ class SimpleRSS
 			if $2 || $3
         tag_cleaned = clean_tag(tag)
         instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
-        self.class.send(:attr_reader, tag_cleaned)
+        self.class.class_eval("attr_reader :#{ tag_cleaned }")
 			end
 		end
 
