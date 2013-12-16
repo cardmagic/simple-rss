@@ -2,7 +2,10 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.2.4)
+    json (1.8.1)
     rake (10.1.0)
+    rdoc (4.0.1)
+      json (~> 1.4)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
@@ -17,4 +20,5 @@ PLATFORMS
 
 DEPENDENCIES
   rake
+  rdoc
   rspec
