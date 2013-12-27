@@ -40,7 +40,7 @@ desc "Create documentation"
 Rake::RDocTask.new("doc") { |rdoc|
   rdoc.title = "Simple RSS - A Flexible RSS and Atom reader for Ruby"
   rdoc.rdoc_dir = 'html'
-  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('README.markdown')
   rdoc.rdoc_files.include('lib/*.rb')
 }
 
