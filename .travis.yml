@@ -6,7 +6,6 @@ rvm:
 - 1.8.7
 - jruby-head
 - jruby-19mode
-- ree
 deploy:
   on:
     tags: true
