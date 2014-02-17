@@ -1,4 +1,4 @@
-image: bradrydzewski/ruby:2.0.0
+image: paintedfox/ruby
 script:
   - bundle install
   - bundle exec rake
