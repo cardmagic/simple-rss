@@ -151,13 +151,13 @@ class SimpleRSS
 		tag.to_s.gsub(':','_').intern
 	end
 	
-  def unescape(content)
-  	if content.respond_to?(:force_encoding) && content.force_encoding("binary") =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/n then
-  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
-  	else
-  		content.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
-  	end
-  end
+	def unescape(content)
+		if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/ then
+			CGI.unescape(content)
+		else
+			content
+		end.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
+	end
 end
 
 class SimpleRSSError < StandardError
