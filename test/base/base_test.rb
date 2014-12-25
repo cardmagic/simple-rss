@@ -2,9 +2,10 @@ require 'test_helper'
 class BaseTest < Test::Unit::TestCase
 	def setup
 		@rss09 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss09.rdf')
-		@rss20 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss20.xml')
+		@rss20 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss20.xml'), :array_tags => [:category]
 		@media_rss = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/media_rss.xml')
 		@atom = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/atom.xml')
+		@rss20_no_categories = SimpleRSS.parse(open(File.dirname(__FILE__) + '/../data/rss20.xml'), :ignore_tags => [:category])
 	end
 	
 	def test_channel
@@ -56,8 +57,16 @@ class BaseTest < Test::Unit::TestCase
 		assert_equal "http://feeds.feedburner.com/rufytech?m=68", @rss20.items.first.link
 		assert_equal "http://feeds.feedburner.com/rufytech?m=68", @rss20.items.first[:link]
 		assert_equal "This is an XML content feed. It is intended to be viewed in a newsreader or syndicated to another site.", @rss20.channel.feedburner_browserFriendly
+		assert_kind_of Array, @rss20.items.first.category
+		assert_equal 2, @rss20.items.first.category.size	# Should be an array
+		assert_equal ["Programming", "Ruby"], @rss20.items.first.category
 	end
 	
+	def test_rss20_no_categories
+		assert_equal 10, @rss20_no_categories.items.size
+		assert_nil @rss20_no_categories.items.first.category
+	end
+
 	def test_atom
 		assert_equal 1, @atom.entries.size
 		assert_equal "dive into mark", @atom.title
