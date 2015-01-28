@@ -22,15 +22,7 @@ makedirs = %w{ shipping }
 makedirs.each {|f| File::makedirs(File.join($sitedir, *f.split(/\//)))}
 
 Dir.chdir("lib")
-begin
-	require 'rubygems'
-	require 'rake'
-rescue LoadError
-	puts
-	puts "Please install Gem and Rake from http://rubyforge.org/projects/rubygems and http://rubyforge.org/projects/rake"
-	puts
-	exit(-1)
-end
+require 'rake'
 
 files = FileList["**/*"]
 
