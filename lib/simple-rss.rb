@@ -89,9 +89,9 @@ class SimpleRSS
 			end
 			
 			if $2 || $3
-        tag_cleaned = clean_tag(tag)
-        instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
-        self.class.class_eval("attr_reader :#{ tag_cleaned }")
+        			tag_cleaned = clean_tag(tag)
+        			instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
+        			self.class.class_eval("attr_reader :#{ tag_cleaned }")
 			end
 		end
 
@@ -99,40 +99,39 @@ class SimpleRSS
 		@source.scan( %r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi ) do |match|
 			item = Hash.new
 			@@item_tags.each do |tag|
-			  if tag.to_s.include?("+")
-			    tag_data = tag.to_s.split("+")
-			    tag = tag_data[0]
-			    rel = tag_data[1]
+				if tag.to_s.include?("+")
+					tag_data = tag.to_s.split("+")
+					tag = tag_data[0]
+					rel = tag_data[1]
 			    
-  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
-  				  nil
-  				end
-  				item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, $3, $4) if $3 || $4
-  			elsif tag.to_s.include?("#")
-			    tag_data = tag.to_s.split("#")
-			    tag = tag_data[0]
-			    attrib = tag_data[1]
-  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
-  				  nil
-  				end
-  				item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
-		    else
-  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-  					nil
-  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
-  					nil
-  				end
-  				item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
+  					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+            					nil
+  					elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
+  				  		nil
+  					end
+  					item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, $3, $4) if $3 || $4
+  				elsif tag.to_s.include?("#")
+			    		tag_data = tag.to_s.split("#")
+			    		tag = tag_data[0]
+			    		attrib = tag_data[1]
+  					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+            					nil
+  					elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
+  				  		nil
+  					end
+  					item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
+		    		else
+  					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+  						nil
+	  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
+  						nil
+  					end
+  					item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
 				end
 			end
 			def item.method_missing(name, *args) self[name] end
 			@items << item
 		end
-
 	end
 
 	def clean_content(tag, attrs, content)
