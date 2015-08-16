@@ -40,7 +40,7 @@ class SimpleRSS
 	def initialize(source, options={})
 		@source = source.respond_to?(:read) ? source.read : source.to_s
 		@items = Array.new
-    @options = Hash.new.update(options)
+		@options = Hash.new.update(options)
     
 		parse
 	end
@@ -103,7 +103,6 @@ class SimpleRSS
 					tag_data = tag.to_s.split("+")
 					tag = tag_data[0]
 					rel = tag_data[1]
-			    
   					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
             					nil
   					elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
@@ -121,7 +120,7 @@ class SimpleRSS
   					end
   					item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
 		    		else
-  					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+                                        if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
   						nil
 	  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
   						nil
