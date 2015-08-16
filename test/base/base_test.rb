@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 require 'test_helper'
 class BaseTest < Test::Unit::TestCase
 	def setup
 		@rss09 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss09.rdf')
 		@rss20 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss20.xml')
+                @rss20_utf8 = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/rss20_utf8.xml')
 		@media_rss = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/media_rss.xml')
 		@atom = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/atom.xml')
 	end
@@ -68,5 +70,14 @@ class BaseTest < Test::Unit::TestCase
 	
 	def test_bad_feed
 	  assert_raise(SimpleRSSError) { SimpleRSS.parse(open(File.dirname(__FILE__) + '/../data/not-rss.xml')) }
+	end
+
+        def test_rss_utf8
+		assert_equal 2, @rss20_utf8.items.size
+		assert_equal "SC5 Blog", @rss20_utf8.title
+		assert_equal Encoding::UTF_8, @rss20_utf8.title.encoding
+		item = @rss20_utf8.items.first
+		assert_equal "Mitä asiakkaamme ajattelevat meistä?", item.title
+		assert_equal Encoding::UTF_8, item.title.encoding
 	end
 end

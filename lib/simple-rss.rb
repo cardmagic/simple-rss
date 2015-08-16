@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.3.1"
+  VERSION = "1.3.2"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -150,11 +150,11 @@ class SimpleRSS
 	end
 	
   def unescape(content)
-  	if content.respond_to?(:force_encoding) && content.force_encoding("binary") =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/n then
-  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
+  	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/ then
+  		CGI.unescape(content)
   	else
-  		content.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
-  	end
+  		content
+  	end.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
   end
 end
 
