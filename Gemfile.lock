@@ -1,0 +1,27 @@
+PATH
+  remote: .
+  specs:
+    simple-rss (1.2.3)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    json (1.8.3)
+    power_assert (0.2.4)
+    rake (10.4.2)
+    rdoc (4.2.0)
+      json (~> 1.4)
+    test-unit (3.1.3)
+      power_assert
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rake
+  rdoc
+  simple-rss!
+  test-unit
+
+BUNDLED WITH
+   1.10.6
