@@ -129,7 +129,7 @@ class SimpleRSS
 		    elsif array_tags.index(tag) 
           # process this tag as an Array (scan!)
           vals = []
-          match[3].scan( %r{<#{tag}>(.*?)</#{tag}>}mi) do |tag_match|
+          match[3].scan( %r{<#{tag}.*?>(.*?)</#{tag}>}mi) do |tag_match|
             vals << tag_match[0]
           end
           item[clean_tag(tag)] = vals
