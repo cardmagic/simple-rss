@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.3.1"
+  VERSION = "1.3.2"
   
   attr_reader :items, :source
   alias :entries :items
@@ -18,7 +18,7 @@ class SimpleRSS
     :image, :logo, :icon, :rating,
     :rights, :copyright,
     :textInput, :'feedburner:browserFriendly',
-    :'itunes:author', :'itunes:category'
+    :'itunes:author', :'itunes:category', :"full-text"
   ]
 
   @@item_tags = [
@@ -34,7 +34,7 @@ class SimpleRSS
     :'media:content#url', :'media:content#type', :'media:content#height', :'media:content#width',
     :'media:title', :'media:thumbnail#url', :'media:thumbnail#height', :'media:thumbnail#width',
     :'media:credit', :'media:credit#role',
-    :'media:category', :'media:category#scheme'
+    :'media:category', :'media:category#scheme', :"full-text"
   ]
 
   def initialize(source, options={})
@@ -94,7 +94,7 @@ class SimpleRSS
         self.class.class_eval("attr_reader :#{ tag_cleaned }")
       end
     end
-
+    
     # RSS items' title, link, and description
     @source.scan( %r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi ) do |match|
       item = Hash.new
@@ -129,7 +129,9 @@ class SimpleRSS
           item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
         end
       end
+
       def item.method_missing(name, *args) self[name] end
+
       @items << item
     end
 
@@ -142,13 +144,15 @@ class SimpleRSS
         Time.parse(content) rescue unescape(content)
       when :author, :contributor, :skipHours, :skipDays
         unescape(content.gsub(/<.*?>/,''))
+      when :"full-text"
+        CGI.unescapeHTML unescape(content.gsub(/<.*?>/,'')).force_encoding("UTF-8")        
       else
         content.empty? && "#{attrs} " =~ /href=['"]?([^'"]*)['" ]/mi ? $1.strip : unescape(content)
     end
   end
 
   def clean_tag(tag)
-    tag.to_s.gsub(':','_').intern
+    tag != :'full-text' ? tag.to_s.gsub(':','_').intern : tag.to_s.gsub('-','_').intern
   end
   
   def unescape(content)
