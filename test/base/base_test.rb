@@ -1,4 +1,9 @@
+#!/bin/env ruby
+# encoding: utf-8
+
 require 'test_helper'
+require 'pry'
+
 class BaseTest < Test::Unit::TestCase
   def setup
     @rss_bbc = SimpleRSS.parse open(File.dirname(__FILE__) + '/../data/bbc.xml')
@@ -9,17 +14,30 @@ class BaseTest < Test::Unit::TestCase
   end
   
   def test_channel
+    assert_equal @rss_bbc, @rss_bbc.channel
     assert_equal @rss09, @rss09.channel
     assert_equal @rss20, @rss20.channel
     assert_equal @atom, @atom.feed
   end
   
   def test_items
+    assert_kind_of Array, @rss_bbc.items
     assert_kind_of Array, @rss09.items
     assert_kind_of Array, @rss20.items
     assert_kind_of Array, @atom.entries
   end
   
+  def test_rss_bbc
+    assert_equal 9, @rss_bbc.items.size
+    assert_equal "BBCBrasil.com | Vídeos e Fotos", @rss_bbc.title.force_encoding("UTF-8")
+    assert_equal "http://www.bbc.com/portuguese/full_all.xml", @rss_bbc.channel.link
+    assert_equal "http://www.bbc.com/portuguese/noticias/2015/11/151102_nadador_atlantico_desafio_lgb", @rss_bbc.items.first.link
+    assert_equal "http://www.bbc.com/portuguese/noticias/2015/11/151102_nadador_atlantico_desafio_lgb", @rss_bbc.items.first[:link]
+    assert_equal Time.parse("2015-11-03 08:21:50 -0200"), @rss_bbc.items.first.pubDate
+    assert_equal Time.parse("2015-11-05 07:33:38 -0200"), @rss_bbc.channel.lastBuildDate
+    assert_not_nil @rss_bbc.items.first.full_text
+  end
+
   def test_rss09
     assert_equal 10, @rss09.items.size
     assert_equal "Slashdot", @rss09.title
