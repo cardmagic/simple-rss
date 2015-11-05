@@ -44,8 +44,9 @@ class BaseTest < Test::Unit::TestCase
     assert_equal "http://slashdot.org/", @rss09.channel.link
     assert_equal "http://books.slashdot.org/article.pl?sid=05/08/29/1319236&amp;from=rss", @rss09.items.first.link
     assert_equal "http://books.slashdot.org/article.pl?sid=05/08/29/1319236&amp;from=rss", @rss09.items.first[:link]
-    assert_equal Time.parse("Wed Aug 24 13:33:34 UTC 2005"), @rss20.items.first.pubDate
+    assert_equal Time.parse("2005-09-09 06:52:31 -0300"), @rss09.items.first.dc_date
     assert_equal Time.parse("Fri Sep 09 02:52:31 PDT 2005"), @rss09.channel.dc_date
+    assert_nil @rss09.items.first.full_text
   end
 
   def test_media_rss
@@ -66,6 +67,7 @@ class BaseTest < Test::Unit::TestCase
     assert_equal "photographer", @media_rss.items.first.media_credit_role
     assert_equal "pets frodo", @media_rss.items.first.media_category
     assert_equal "urn:flickr:tags", @media_rss.items.first.media_category_scheme
+    assert_nil @media_rss.items.first.full_text
   end
   
   def test_rss20
@@ -75,6 +77,7 @@ class BaseTest < Test::Unit::TestCase
     assert_equal "http://feeds.feedburner.com/rufytech?m=68", @rss20.items.first.link
     assert_equal "http://feeds.feedburner.com/rufytech?m=68", @rss20.items.first[:link]
     assert_equal "This is an XML content feed. It is intended to be viewed in a newsreader or syndicated to another site.", @rss20.channel.feedburner_browserFriendly
+    assert_nil @rss20.items.first.full_text
   end
   
   def test_atom
@@ -83,6 +86,7 @@ class BaseTest < Test::Unit::TestCase
     assert_equal "http://example.org/", @atom.feed.link
     assert_equal "http://example.org/2005/04/02/atom", @atom.entries.first.link
     assert_equal "http://example.org/2005/04/02/atom", @atom.entries.first[:link]
+    assert_nil @atom.entries.first.full_text
   end
   
   def test_bad_feed
