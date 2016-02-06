@@ -781,6 +781,9 @@ end
       <pubDate>Tue, 19 Jul 2005 00:16:03 +0000</pubDate>
       <dc:creator>Lucas Carlson</dc:creator>
       <category>General</category>
+      <category>Custer</category>
+      <category>Last</category>
+      <category>Stand</category>
       <guid isPermaLink="false">http://tech.rufy.com/entry/73</guid>
       <description><![CDATA[I wish I could call every program on the command line like this:
 
