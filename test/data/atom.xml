@@ -15,7 +15,7 @@
   <generator uri="http://www.example.com/" version="1.0">
     Example Toolkit
   </generator>
-  <entry>
+  <entry gr:crawl-timestamp-msec="1291841305234">
     <title>Atom draft-07 snapshot</title>
     <link rel="alternate" type="text/html" 
      href="http://example.org/2005/04/02/atom"/>

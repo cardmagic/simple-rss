@@ -18,7 +18,7 @@ xmlns="http://my.netscape.com/rdf/simple/0.9/">
 <link>http://slashdot.org/</link>
 </image>
 
-<item>
+<item gr:crawl-timestamp-msec="1291841305234">
 <title>JBoss - A Developer's Notebook</title>
 <link>http://books.slashdot.org/article.pl?sid=05/08/29/1319236&amp;from=rss</link>
 <dc:date>2005-09-09T02:52:31-07:00</dc:date>

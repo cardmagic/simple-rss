@@ -12,7 +12,7 @@
     <language>en</language>
     <atom:link xmlns:atom="http://purl.org/atom/ns#" rel="self" href="http://feeds.feedburner.com/rufytech" type="application/rss+xml" />
     <feedburner:browserFriendly>This is an XML content feed. It is intended to be viewed in a newsreader or syndicated to another site.</feedburner:browserFriendly>
-    <item>
+    <item gr:crawl-timestamp-msec="1291841305234">
       <title>some_string.starts_with? “Foo” || some_string.ends_with? “bar.”</title>
       <link>http://feeds.feedburner.com/rufytech?m=68</link>
       <comments>http://tech.rufy.com/entry/82#comments</comments>
