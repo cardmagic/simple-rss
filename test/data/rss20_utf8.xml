@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>SC5 Blog</title>
+	<atom:link href="http://sc5.io/blog/feed/" rel="self" type="application/rss+xml" />
+	<link>http://sc5.io/blog</link>
+	<description>HTML5 expertise</description>
+	<lastBuildDate>Wed, 01 Oct 2014 09:52:48 +0000</lastBuildDate>
+	<language>fi-FI</language>
+		<sy:updatePeriod>hourly</sy:updatePeriod>
+		<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>http://wordpress.org/?v=4.0</generator>
+	<item>
+		<title>Mitä asiakkaamme ajattelevat meistä?</title>
+		<link>http://sc5.io/blog/2014/09/mita-asiakkaamme-ajattelevat-meista/</link>
+		<comments>http://sc5.io/blog/2014/09/mita-asiakkaamme-ajattelevat-meista/#comments</comments>
+		<pubDate>Mon, 29 Sep 2014 13:19:37 +0000</pubDate>
+		<dc:creator><![CDATA[Saskia Salomaa]]></dc:creator>
+				<category><![CDATA[HTML5]]></category>
+		<category><![CDATA[Organization]]></category>
+
+		<guid isPermaLink="false">http://sc5.io/blog/?p=2818</guid>
+		<description><![CDATA[<p>Toteutimme yhdessä MicroMedian kanssa asiakastyytyväisyystutkimuksen, jossa tiedustelimme asiakkaidemme näkemyksiä toimintatavoistamme. Voimme ylpeänä kertoa, että asiakkaamme tykkäsivät työmme jäljestä. Mutta mihin asiakamme olivat meissä erityisen tyytyväisiä? Vastauksissa korostuivat työntekijöidemme osaaminen ja ammattitaito. Lisäksi kehuttiin kykyämme nähdä... <a class="read-more" href="http://sc5.io/blog/2014/09/mita-asiakkaamme-ajattelevat-meista/">Read More</a></p>
+<p>The post <a rel="nofollow" href="http://sc5.io/blog/2014/09/mita-asiakkaamme-ajattelevat-meista/">Mitä asiakkaamme ajattelevat meistä?</a> appeared first on <a rel="nofollow" href="http://sc5.io/blog">SC5 Blog</a>.</p>
+]]></description>
+		<wfw:commentRss>http://sc5.io/blog/2014/09/mita-asiakkaamme-ajattelevat-meista/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Tribute to Jyväskylä, City of Lights</title>
+		<link>http://sc5.io/blog/2014/09/tribute-to-jyvaskyla-city-of-lights/</link>
+		<comments>http://sc5.io/blog/2014/09/tribute-to-jyvaskyla-city-of-lights/#comments</comments>
+		<pubDate>Thu, 25 Sep 2014 10:36:20 +0000</pubDate>
+		<dc:creator><![CDATA[Arto Liukkonen]]></dc:creator>
+				<category><![CDATA[JavaScript]]></category>
+		<category><![CDATA[Jyväskylä]]></category>
+		<category><![CDATA[Mobile]]></category>
+		<category><![CDATA[Video]]></category>
+		<category><![CDATA[Web apps]]></category>
+		<category><![CDATA[city of lights]]></category>
+		<category><![CDATA[internet of things]]></category>
+		<category><![CDATA[iot]]></category>
+		<category><![CDATA[raspberry pi]]></category>
+
+		<guid isPermaLink="false">http://sc5.io/blog/?p=2886</guid>
+		<description><![CDATA[<p>In Finland the winters are dark so artificial, energy-efficient lights are needed. Good lighting not only boosts enjoyment and the quality of life, but can be a form of art itself. Jyväskylä is a forerunner... <a class="read-more" href="http://sc5.io/blog/2014/09/tribute-to-jyvaskyla-city-of-lights/">Read More</a></p>
+<p>The post <a rel="nofollow" href="http://sc5.io/blog/2014/09/tribute-to-jyvaskyla-city-of-lights/">Tribute to Jyväskylä, City of Lights</a> appeared first on <a rel="nofollow" href="http://sc5.io/blog">SC5 Blog</a>.</p>
+]]></description>
+		<wfw:commentRss>http://sc5.io/blog/2014/09/tribute-to-jyvaskyla-city-of-lights/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+	</channel>
+</rss>
