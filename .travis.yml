@@ -7,8 +7,3 @@ rvm:
 - 1.9.3
 - jruby-head
 - jruby-19mode
-deploy:
-  on:
-    tags: true
-  api_key:
-    secure: l7lBSK+NA/18FKIPklKSD0Cmce84QyeCOIwDsorWd2pvjMBt2F0DS08i+4ZEVGXDkj4mREusipgdg6Z4qSQM3Gw8Yl8V3l5vEc8JDZ71mEdz1F2Q05TjTkogILNc1V+qd7ORtd7wu3pbcDfdjzcfJvsxVnTY1iZdHNSu8h9megg=

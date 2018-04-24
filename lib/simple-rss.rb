@@ -2,7 +2,7 @@ require 'cgi'
 require 'time'
 
 class SimpleRSS
-  VERSION = "1.3.1"
+  VERSION = "1.3.2"
   
 	attr_reader :items, :source
 	alias :entries :items
@@ -40,7 +40,7 @@ class SimpleRSS
 	def initialize(source, options={})
 		@source = source.respond_to?(:read) ? source.read : source.to_s
 		@items = Array.new
-    @options = Hash.new.update(options)
+		@options = Hash.new.update(options)
     
 		parse
 	end
@@ -89,9 +89,9 @@ class SimpleRSS
 			end
 			
 			if $2 || $3
-        tag_cleaned = clean_tag(tag)
-        instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
-        self.class.class_eval("attr_reader :#{ tag_cleaned }")
+        			tag_cleaned = clean_tag(tag)
+        			instance_variable_set("@#{ tag_cleaned }", clean_content(tag, $2, $3))
+        			self.class.class_eval("attr_reader :#{ tag_cleaned }")
 			end
 		end
 
@@ -99,40 +99,38 @@ class SimpleRSS
 		@source.scan( %r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi ) do |match|
 			item = Hash.new
 			@@item_tags.each do |tag|
-			  if tag.to_s.include?("+")
-			    tag_data = tag.to_s.split("+")
-			    tag = tag_data[0]
-			    rel = tag_data[1]
-			    
-  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
-  				  nil
-  				end
-  				item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, $3, $4) if $3 || $4
-  			elsif tag.to_s.include?("#")
-			    tag_data = tag.to_s.split("#")
-			    tag = tag_data[0]
-			    attrib = tag_data[1]
-  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
-  				  nil
-  				end
-  				item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
-		    else
-  				if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-  					nil
-  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
-  					nil
-  				end
-  				item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
+				if tag.to_s.include?("+")
+					tag_data = tag.to_s.split("+")
+					tag = tag_data[0]
+					rel = tag_data[1]
+  					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+            					nil
+  					elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
+  				  		nil
+  					end
+  					item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, $3, $4) if $3 || $4
+  				elsif tag.to_s.include?("#")
+			    		tag_data = tag.to_s.split("#")
+			    		tag = tag_data[0]
+			    		attrib = tag_data[1]
+  					if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+            					nil
+  					elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
+  				  		nil
+  					end
+  					item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, $3) if $3
+		    		else
+                                        if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
+  						nil
+	  				elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
+  						nil
+  					end
+  					item[clean_tag(tag)] = clean_content(tag, $2, $3) if $2 || $3
 				end
 			end
 			def item.method_missing(name, *args) self[name] end
 			@items << item
 		end
-
 	end
 
 	def clean_content(tag, attrs, content)
@@ -152,11 +150,11 @@ class SimpleRSS
 	end
 	
   def unescape(content)
-  	if content.respond_to?(:force_encoding) && content.force_encoding("binary") =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/n then
-  		CGI.unescape(content).gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
+  	if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/ then
+  		CGI.unescape(content)
   	else
-  		content.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
-  	end
+  		content
+  	end.gsub(/(<!\[CDATA\[|\]\]>)/,'').strip
   end
 end
 
