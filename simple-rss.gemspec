@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = "simple-rss"
-  s.version = "1.3.2"
+  s.version = "1.3.3"
   s.version = "#{s.version}-alpha-#{ENV['TRAVIS_BUILD_NUMBER']}" if ENV['TRAVIS']
   s.date = "2015-08-17"
   s.summary = "A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. It is designed to be backwards compatible with the standard RSS parser, but will never do RSS generation."
