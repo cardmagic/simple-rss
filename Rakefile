@@ -4,7 +4,6 @@ require 'rake'
 require 'rake/testtask'
 require 'rdoc/task'
 require 'rubygems/package_task'
-require 'rake/contrib/rubyforgepublisher'
 require './lib/simple-rss'
 
 PKG_VERSION = SimpleRSS::VERSION
