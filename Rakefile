@@ -65,10 +65,6 @@ spec = Gem::Specification.new do |s|
 
   s.require_path = 'lib'
 
-  #### Documentation and testing.
-
-  s.has_rdoc = true
-
   #### Author and project details.
 
   s.author = "Lucas Carlson"
