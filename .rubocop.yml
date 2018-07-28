@@ -1,0 +1,24 @@
+# Commonly used screens these days easily fit more than 80 characters.
+Metrics/LineLength:
+  Max: 120
+
+# Too short methods lead to extraction of single-use methods, which can make
+# the code easier to read (by naming things), but can also clutter the class
+Metrics/MethodLength: 
+  Max: 20
+
+# The guiding principle of classes is SRP, SRP can't be accurately measured by LoC
+Metrics/ClassLength:
+  Max: 1500
+
+# No space makes the method definition shorter and differentiates
+# from a regular assignment.
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+# Single quotes being faster is hardly measurable and only affects parse time.
+# Enforcing double quotes reduces the times where you need to change them
+# when introducing an interpolation. Use single quotes only if their semantics
+# are needed.
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
