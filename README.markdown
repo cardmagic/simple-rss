@@ -17,7 +17,7 @@ The API is similar to Ruby's standard RSS parser:
     require 'simple-rss'
     require 'open-uri'
 
-    rss = SimpleRSS.parse open('http://slashdot.org/index.rdf')
+    rss = SimpleRSS.parse open('http://rss.slashdot.org/Slashdot/slashdot/to')
 
     rss.channel.title # => "Slashdot"
     rss.channel.link # => "http://slashdot.org/"
