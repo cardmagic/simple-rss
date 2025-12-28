@@ -3,5 +3,4 @@ coverage/
 sig/generated/
 Gemfile.lock
 *.gem
-CLAUDE.md
 .claude/
