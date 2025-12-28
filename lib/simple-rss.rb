@@ -4,7 +4,7 @@ require "cgi"
 require "time"
 
 class SimpleRSS
-  VERSION = "1.3.3".freeze
+  VERSION = "2.0.0".freeze
 
   # @rbs @items: Array[Hash[Symbol, untyped]]
   # @rbs @source: String
