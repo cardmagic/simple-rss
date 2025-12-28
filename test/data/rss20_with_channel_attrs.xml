@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:custom="http://example.org/custom">
+  <channel custom:version="2.0">
+    <title>Test RSS Feed</title>
+    <link>http://example.org</link>
+    <description>A test feed with channel attributes</description>
+    <item>
+      <title>Test Item</title>
+      <link>http://example.org/item/1</link>
+      <description>This is a test item</description>
+    </item>
+  </channel>
+</rss>
