@@ -43,11 +43,12 @@ class SimpleRSS
     media:category media:category#scheme
   ]
 
-  # @rbs (String | IO, ?Hash[Symbol, untyped]) -> void
+  # @rbs (untyped, ?Hash[Symbol, untyped]) -> void
   def initialize(source, options = {})
-    @source = source.respond_to?(:read) ? source.read : source.to_s
-    @items = []
-    @options = {}.update(options)
+    @source = source.respond_to?(:read) ? source.read.to_s : source.to_s
+    @items = [] #: Array[Hash[Symbol, untyped]]
+    @options = {} #: Hash[Symbol, untyped]
+    @options.update(options)
 
     parse
   end
@@ -81,7 +82,7 @@ class SimpleRSS
 
     # The strict attribute is for compatibility with Ruby's standard RSS parser
     #
-    # @rbs (String | IO, ?Hash[Symbol, untyped]) -> SimpleRSS
+    # @rbs (untyped, ?Hash[Symbol, untyped]) -> SimpleRSS
     def parse(source, options = {})
       new source, options
     end
@@ -119,13 +120,11 @@ class SimpleRSS
 
     # RSS items' title, link, and description
     @source.scan(%r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi) do |match|
-      item = {}
+      item = {} #: Hash[Symbol, untyped]
       @@item_tags.each do |tag|
         parse_item_tag(item, tag, match[3])
       end
-      def item.method_missing(name, *_args)
-        self[name]
-      end
+      item.define_singleton_method(:method_missing) { |name, *| self[name] }
       @items << item
     end
   end
@@ -145,6 +144,8 @@ class SimpleRSS
   # @rbs (Hash[Symbol, untyped], String, String) -> void
   def parse_rel_tag(item, tag_str, content)
     tag, rel = tag_str.split("+")
+    return unless tag && rel
+
     content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
       content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
 
@@ -156,6 +157,8 @@ class SimpleRSS
   # @rbs (Hash[Symbol, untyped], String, String) -> void
   def parse_attr_tag(item, tag_str, content)
     tag, attrib = tag_str.split("#")
+    return unless tag && attrib
+
     content =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
       content =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
 
@@ -196,7 +199,7 @@ class SimpleRSS
   def extract_href(attrs)
     return "" unless "#{attrs} " =~ /href=['"]?([^'"]*)['" ]/mi
 
-    Regexp.last_match(1).strip
+    Regexp.last_match(1)&.strip || ""
   end
 
   # @rbs (Symbol | String) -> Symbol
