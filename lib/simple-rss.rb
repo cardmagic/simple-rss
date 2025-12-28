@@ -108,6 +108,8 @@ class SimpleRSS
     end
 
     @@feed_tags.each do |tag|
+      next if tag.to_s.strip.empty?
+
       tag_str = tag.to_s
 
       # Handle channel#attr or feed#attr syntax
@@ -137,6 +139,8 @@ class SimpleRSS
     @source.scan(%r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi) do |match|
       item = {} #: Hash[Symbol, untyped]
       @@item_tags.each do |tag|
+        next if tag.to_s.strip.empty?
+
         parse_item_tag(item, tag, match[3], match[2])
       end
       item.define_singleton_method(:method_missing) { |name, *| self[name] }
