@@ -263,11 +263,13 @@ class SimpleRSS
 
   # @rbs (String) -> String
   def unescape(content)
-    if content =~ %r{([^-_.!~*'()a-zA-Z\d;/?:@&=+$,\[\]]%)}
+    result = if content =~ %r{([^-_.!~*'()a-zA-Z\d;/?:@&=+$,\[\]]%)}
       CGI.unescape(content)
     else
       content
     end.gsub(/(<!\[CDATA\[|\]\]>)/, "").strip
+
+    result.encode(Encoding::UTF_8)
   end
 end
 
