@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://example.org/app" app:id="12345">
+  <title type="text">Test Feed</title>
+  <updated>2005-07-31T12:29:29Z</updated>
+  <id>tag:example.org,2003:3</id>
+  <link rel="alternate" type="text/html" href="http://example.org/"/>
+  <entry>
+    <title>Test Entry</title>
+    <link rel="alternate" type="text/html" href="http://example.org/entry/1"/>
+    <id>tag:example.org,2003:3.2397</id>
+    <updated>2005-07-31T12:29:29Z</updated>
+  </entry>
+</feed>

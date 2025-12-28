@@ -101,7 +101,21 @@ class SimpleRSS
     # Feed's title and link
     feed_content = Regexp.last_match(1) if @source =~ %r{(.*?)<(rss:|atom:)?(item|entry).*?>.*?</(rss:|atom:)?(item|entry)>}mi
 
+    # Capture channel/feed tag attributes
+    feed_attrs = nil
+    if @source =~ /<(channel|feed)([\s][^>]*)?>/mi
+      feed_attrs = Regexp.last_match(2)
+    end
+
     @@feed_tags.each do |tag|
+      tag_str = tag.to_s
+
+      # Handle channel#attr or feed#attr syntax
+      if tag_str.include?("#")
+        parse_feed_attr_tag(tag_str, feed_attrs)
+        next
+      end
+
       if feed_content && feed_content =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
         nil
       elsif feed_content && feed_content =~ %r{<(rss:|atom:)?#{tag}(.*?)\/\s*>}mi
@@ -153,6 +167,20 @@ class SimpleRSS
     return unless Regexp.last_match(3) || Regexp.last_match(4)
 
     item[clean_tag("#{tag}+#{rel}")] = clean_content(tag.to_sym, Regexp.last_match(3), Regexp.last_match(4))
+  end
+
+  # @rbs (String, String?) -> void
+  def parse_feed_attr_tag(tag_str, feed_attrs)
+    tag, attrib = tag_str.split("#")
+    return unless tag && attrib && feed_attrs
+
+    # Only handle channel or feed tags
+    return unless %w[channel feed].include?(tag)
+    return unless feed_attrs =~ /#{attrib}=['"](.*?)['"]/mi
+
+    tag_cleaned = clean_tag("#{tag}_#{attrib}")
+    instance_variable_set("@#{tag_cleaned}", clean_content(tag.to_sym, attrib, Regexp.last_match(1)))
+    self.class.class_eval("attr_reader :#{tag_cleaned}")
   end
 
   # @rbs (Hash[Symbol, untyped], String, String, String?) -> void
