@@ -24,12 +24,12 @@ class EncodingTest < Test::Unit::TestCase
 
     assert_equal Encoding::UTF_8, rss.title.encoding
     # Verify UTF-8 characters are preserved
-    assert rss.items.any? { |item| item.title && item.title.encoding == Encoding::UTF_8 }
+    assert(rss.items.any? { |item| item.title && item.title.encoding == Encoding::UTF_8 })
   end
 
   def test_ascii_8bit_source_normalized_to_utf8
     # Issue #28: when source is ASCII-8BIT, output should still be UTF-8
-    xml = <<~XML.b  # .b forces ASCII-8BIT encoding
+    xml = <<~XML.b # .b forces ASCII-8BIT encoding
       <?xml version="1.0"?>
       <rss version="2.0">
         <channel>
@@ -81,7 +81,7 @@ class EncodingTest < Test::Unit::TestCase
     rss_without = SimpleRSS.parse(xml_without_percent)
 
     assert_equal rss_with.title.encoding, rss_without.title.encoding,
-      "Encoding should be consistent regardless of '%' in content"
+                 "Encoding should be consistent regardless of '%' in content"
     assert_equal Encoding::UTF_8, rss_without.title.encoding
   end
 end
