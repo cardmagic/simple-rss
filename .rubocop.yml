@@ -1,24 +1,135 @@
-# Commonly used screens these days easily fit more than 80 characters.
-Metrics/LineLength:
-  Max: 120
+# Allow rbs-inline #: comments without space after #
+Layout/LeadingCommentSpace:
+  AllowRBSInlineAnnotation: true
 
-# Too short methods lead to extraction of single-use methods, which can make
-# the code easier to read (by naming things), but can also clutter the class
-Metrics/MethodLength: 
-  Max: 20
+AllCops:
+  TargetRubyVersion: 3.1
+  NewCops: enable
+  Exclude:
+    - "vendor/**/*"
+    - "coverage/**/*"
+    - "*.gemspec"
+    - "install.rb"
+    - "Rakefile"
 
-# The guiding principle of classes is SRP, SRP can't be accurately measured by LoC
+# Gem naming convention uses simple-rss.rb
+Naming/FileName:
+  Exclude:
+    - "lib/simple-rss.rb"
+
+# Short parameter names are acceptable for setters
+Naming/MethodParameterName:
+  Exclude:
+    - "lib/simple-rss.rb"
+
+# it assignment style is fine for Ruby 3.4+
+Style/ItAssignment:
+  Enabled: false
+
+# Line length
+Layout/LineLength:
+  Max: 160
+  Exclude:
+    - "test/**/*"
+
+# Security/Open is safe here - only used with File.dirname
+Security/Open:
+  Exclude:
+    - "test/**/*"
+
+# Bundler gem ordering not critical
+Bundler/OrderedGems:
+  Enabled: false
+
+# Existing code lacks documentation, can add incrementally
+Style/Documentation:
+  Enabled: false
+
+# Allow longer methods for parsing logic
+Metrics/MethodLength:
+  Max: 60
+  Exclude:
+    - "test/**/*"
+
+# Allow higher complexity for parsing methods
+Metrics/AbcSize:
+  Max: 80
+  Exclude:
+    - "test/**/*"
+
+Metrics/CyclomaticComplexity:
+  Max: 30
+
+Metrics/PerceivedComplexity:
+  Max: 35
+
+# Class length for SimpleRSS
 Metrics/ClassLength:
-  Max: 1500
+  Max: 250
 
-# No space makes the method definition shorter and differentiates
-# from a regular assignment.
-Layout/SpaceAroundEqualsInParameterDefault:
-  EnforcedStyle: no_space
+# Frozen string literal is optional for this gem
+Style/FrozenStringLiteralComment:
+  Enabled: false
 
-# Single quotes being faster is hardly measurable and only affects parse time.
-# Enforcing double quotes reduces the times where you need to change them
-# when introducing an interpolation. Use single quotes only if their semantics
-# are needed.
+# Allow compact class/module child definitions
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Use double quotes consistently
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+# Allow class variables for feed_tags/item_tags
+Style/ClassVars:
+  Enabled: false
+
+# Regex parsing code uses Regexp.last_match
+Style/PerlBackrefs:
+  Enabled: false
+
+# Allow method_missing for item hash access
+Style/MissingRespondToMissing:
+  Exclude:
+    - "lib/simple-rss.rb"
+
+# Regex parsing intentionally uses nil branches for pattern matching
+Lint/Void:
+  Exclude:
+    - "lib/simple-rss.rb"
+
+Lint/DuplicateBranch:
+  Exclude:
+    - "lib/simple-rss.rb"
+
+# class_eval used for dynamic attr_reader definition
+Style/EvalWithLocation:
+  Exclude:
+    - "lib/simple-rss.rb"
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
+# Regex escapes in existing code are intentional
+Style/RedundantRegexpEscape:
+  Enabled: false
+
+Style/RedundantRegexpCharacterClass:
+  Enabled: false
+
+# If/unless modifier preference
+Style/IfUnlessModifier:
+  Enabled: false
+
+# String concatenation in tests is fine
+Style/StringConcatenation:
+  Exclude:
+    - "test/**/*"
+
+# Block length for parsing
+Metrics/BlockLength:
+  Max: 40
+  Exclude:
+    - "test/**/*"

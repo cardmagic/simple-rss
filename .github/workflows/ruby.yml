@@ -1,0 +1,44 @@
+name: Ruby
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+        bundler-cache: true
+    - name: Run RuboCop
+      run: bundle exec rubocop
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ['3.1', '3.2', '3.3', '3.4']
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    - name: Run tests
+      run: bundle exec rake test
+    - name: Generate RBS from inline annotations
+      run: bundle exec rbs-inline --output sig lib/
+    - name: Validate RBS types
+      run: bundle exec rbs -I sig validate

@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ruby.yml
+
+  release:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+        bundler-cache: true
+
+    - name: Build gem
+      run: gem build simple-rss.gemspec
+
+    - name: Configure RubyGems credentials
+      uses: rubygems/configure-rubygems-credentials@main
+
+    - name: Push to RubyGems
+      run: gem push simple-rss-*.gem
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: simple-rss-*.gem
+        generate_release_notes: true

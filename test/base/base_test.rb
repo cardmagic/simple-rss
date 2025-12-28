@@ -78,5 +78,5 @@ class BaseTest < Test::Unit::TestCase
     item = @rss20_utf8.items.first
     assert_equal "Mitä asiakkaamme ajattelevat meistä?", item.title
     assert_equal Encoding::UTF_8, item.title.encoding
-   end
+  end
 end

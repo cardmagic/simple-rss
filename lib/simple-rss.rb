@@ -1,8 +1,14 @@
+# rbs_inline: enabled
+
 require "cgi"
 require "time"
 
 class SimpleRSS
   VERSION = "1.3.3".freeze
+
+  # @rbs @items: Array[Hash[Symbol, untyped]]
+  # @rbs @source: String
+  # @rbs @options: Hash[Symbol, untyped]
 
   attr_reader :items, :source
   alias entries items
@@ -37,7 +43,8 @@ class SimpleRSS
     media:category media:category#scheme
   ]
 
-  def initialize(source, options={})
+  # @rbs (String | IO, ?Hash[Symbol, untyped]) -> void
+  def initialize(source, options = {})
     @source = source.respond_to?(:read) ? source.read : source.to_s
     @items = []
     @options = {}.update(options)
@@ -45,36 +52,44 @@ class SimpleRSS
     parse
   end
 
+  # @rbs () -> SimpleRSS
   def channel
     self
- end
+  end
   alias feed channel
 
   class << self
+    # @rbs () -> Array[Symbol]
     def feed_tags
       @@feed_tags
     end
 
+    # @rbs (Array[Symbol]) -> Array[Symbol]
     def feed_tags=(ft)
       @@feed_tags = ft
     end
 
+    # @rbs () -> Array[Symbol]
     def item_tags
       @@item_tags
     end
 
+    # @rbs (Array[Symbol]) -> Array[Symbol]
     def item_tags=(it)
       @@item_tags = it
     end
 
     # The strict attribute is for compatibility with Ruby's standard RSS parser
-    def parse(source, options={})
+    #
+    # @rbs (String | IO, ?Hash[Symbol, untyped]) -> SimpleRSS
+    def parse(source, options = {})
       new source, options
     end
   end
 
   private
 
+  # @rbs () -> void
   def parse
     raise SimpleRSSError, "Poorly formatted feed" unless @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>}mi
 
@@ -93,6 +108,7 @@ class SimpleRSS
       end
 
       next unless Regexp.last_match(2) || Regexp.last_match(3)
+
       tag_cleaned = clean_tag(tag)
       instance_variable_set("@#{tag_cleaned}", clean_content(tag, Regexp.last_match(2), Regexp.last_match(3)))
       self.class.class_eval("attr_reader :#{tag_cleaned}")
@@ -127,26 +143,27 @@ class SimpleRSS
             nil
           elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
             nil
-            end
+          end
           item[clean_tag(tag)] = clean_content(tag, Regexp.last_match(2), Regexp.last_match(3)) if Regexp.last_match(2) || Regexp.last_match(3)
         end
       end
       def item.method_missing(name, *_args)
         self[name]
- end
+      end
       @items << item
     end
   end
 
+  # @rbs (Symbol, String?, String?) -> (Time | String)
   def clean_content(tag, attrs, content)
     content = content.to_s
     case tag
-    when :pubDate, :lastBuildDate, :published, :updated, :expirationDate, :modified, :'dc:date'
+    when :pubDate, :lastBuildDate, :published, :updated, :expirationDate, :modified, :"dc:date"
       begin
-  Time.parse(content)
-rescue StandardError
-  unescape(content)
-end
+        Time.parse(content)
+      rescue StandardError
+        unescape(content)
+      end
     when :author, :contributor, :skipHours, :skipDays
       unescape(content.gsub(/<.*?>/, ""))
     else
@@ -154,12 +171,14 @@ end
     end
   end
 
+  # @rbs (Symbol | String) -> Symbol
   def clean_tag(tag)
     tag.to_s.tr(":", "_").intern
   end
 
+  # @rbs (String) -> String
   def unescape(content)
-    if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/
+    if content =~ %r{([^-_.!~*'()a-zA-Z\d;/?:@&=+$,\[\]]%)}
       CGI.unescape(content)
     else
       content
