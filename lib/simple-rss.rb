@@ -123,21 +123,21 @@ class SimpleRSS
     @source.scan(%r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi) do |match|
       item = {} #: Hash[Symbol, untyped]
       @@item_tags.each do |tag|
-        parse_item_tag(item, tag, match[3])
+        parse_item_tag(item, tag, match[3], match[2])
       end
       item.define_singleton_method(:method_missing) { |name, *| self[name] }
       @items << item
     end
   end
 
-  # @rbs (Hash[Symbol, untyped], Symbol, String?) -> void
-  def parse_item_tag(item, tag, content)
+  # @rbs (Hash[Symbol, untyped], Symbol, String?, String?) -> void
+  def parse_item_tag(item, tag, content, item_attrs = nil)
     return if content.nil?
 
     tag_str = tag.to_s
 
     return parse_rel_tag(item, tag_str, content) if tag_str.include?("+")
-    return parse_attr_tag(item, tag_str, content) if tag_str.include?("#")
+    return parse_attr_tag(item, tag_str, content, item_attrs) if tag_str.include?("#")
 
     parse_simple_tag(item, tag, content)
   end
@@ -155,10 +155,18 @@ class SimpleRSS
     item[clean_tag("#{tag}+#{rel}")] = clean_content(tag.to_sym, Regexp.last_match(3), Regexp.last_match(4))
   end
 
-  # @rbs (Hash[Symbol, untyped], String, String) -> void
-  def parse_attr_tag(item, tag_str, content)
+  # @rbs (Hash[Symbol, untyped], String, String, String?) -> void
+  def parse_attr_tag(item, tag_str, content, item_attrs = nil)
     tag, attrib = tag_str.split("#")
     return unless tag && attrib
+
+    # Handle attributes on the item/entry tag itself
+    if %w[item entry].include?(tag) && item_attrs
+      return unless item_attrs =~ /#{attrib}=['"](.*?)['"]/mi
+
+      item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag.to_sym, attrib, Regexp.last_match(1))
+      return
+    end
 
     content =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
       content =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
