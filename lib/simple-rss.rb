@@ -178,12 +178,29 @@ class SimpleRSS
 
   # @rbs (Hash[Symbol, untyped], Symbol, String) -> void
   def parse_simple_tag(item, tag, content)
+    # Handle array_tags option - collect all values for this tag
+    if array_tag?(tag)
+      values = content.scan(%r{<(rss:|atom:)?#{tag}(?:[^>]*)>(.*?)</(rss:|atom:)?#{tag}>}mi).map do |match|
+        clean_content(tag, nil, match[1])
+      end
+      item[clean_tag(tag)] = values unless values.empty?
+      return
+    end
+
     content =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
       content =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
 
     return unless Regexp.last_match(2) || Regexp.last_match(3)
 
     item[clean_tag(tag)] = clean_content(tag, Regexp.last_match(2), Regexp.last_match(3))
+  end
+
+  # @rbs (Symbol) -> bool
+  def array_tag?(tag)
+    array_tags = @options[:array_tags]
+    return false unless array_tags.is_a?(Array)
+
+    array_tags.include?(tag) || array_tags.include?(tag.to_sym)
   end
 
   # @rbs (Symbol, String?, String?) -> (Time | String)
