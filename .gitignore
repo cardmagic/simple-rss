@@ -1,1 +1,6 @@
 .DS_Store
+coverage/
+sig/generated/
+Gemfile.lock
+*.gem
+.claude/

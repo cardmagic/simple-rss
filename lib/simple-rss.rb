@@ -1,11 +1,18 @@
+# rbs_inline: enabled
+
 require "cgi"
 require "time"
 
 class SimpleRSS
   VERSION = "1.3.3".freeze
 
-  attr_reader :items, :source
-  alias entries items
+  # @rbs @items: Array[Hash[Symbol, untyped]]
+  # @rbs @source: String
+  # @rbs @options: Hash[Symbol, untyped]
+
+  attr_reader :items #: Array[Hash[Symbol, untyped]]
+  attr_reader :source #: String
+  alias entries items #: Array[Hash[Symbol, untyped]]
 
   @@feed_tags = %i[
     id
@@ -37,44 +44,57 @@ class SimpleRSS
     media:category media:category#scheme
   ]
 
-  def initialize(source, options={})
-    @source = source.respond_to?(:read) ? source.read : source.to_s
-    @items = []
-    @options = {}.update(options)
+  # @rbs (untyped, ?Hash[Symbol, untyped]) -> void
+  def initialize(source, options = {})
+    @source = source.respond_to?(:read) ? source.read.to_s : source.to_s
+    @items = [] #: Array[Hash[Symbol, untyped]]
+    @options = {} #: Hash[Symbol, untyped]
+    @options.update(options)
 
     parse
   end
 
+  # @rbs () -> SimpleRSS
   def channel
     self
- end
+  end
   alias feed channel
 
   class << self
+    # @rbs () -> Array[Symbol]
     def feed_tags
       @@feed_tags
     end
 
+    # @rbs (Array[Symbol]) -> Array[Symbol]
     def feed_tags=(ft)
       @@feed_tags = ft
     end
 
+    # @rbs () -> Array[Symbol]
     def item_tags
       @@item_tags
     end
 
+    # @rbs (Array[Symbol]) -> Array[Symbol]
     def item_tags=(it)
       @@item_tags = it
     end
 
     # The strict attribute is for compatibility with Ruby's standard RSS parser
-    def parse(source, options={})
+    #
+    # @rbs (untyped, ?Hash[Symbol, untyped]) -> SimpleRSS
+    def parse(source, options = {})
       new source, options
     end
   end
 
+  DATE_TAGS = %i[pubDate lastBuildDate published updated expirationDate modified dc:date].freeze
+  STRIP_HTML_TAGS = %i[author contributor skipHours skipDays].freeze
+
   private
 
+  # @rbs () -> void
   def parse
     raise SimpleRSSError, "Poorly formatted feed" unless @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>}mi
 
@@ -93,6 +113,7 @@ class SimpleRSS
       end
 
       next unless Regexp.last_match(2) || Regexp.last_match(3)
+
       tag_cleaned = clean_tag(tag)
       instance_variable_set("@#{tag_cleaned}", clean_content(tag, Regexp.last_match(2), Regexp.last_match(3)))
       self.class.class_eval("attr_reader :#{tag_cleaned}")
@@ -100,66 +121,96 @@ class SimpleRSS
 
     # RSS items' title, link, and description
     @source.scan(%r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi) do |match|
-      item = {}
+      item = {} #: Hash[Symbol, untyped]
       @@item_tags.each do |tag|
-        if tag.to_s.include?("+")
-          tag_data = tag.to_s.split("+")
-          tag = tag_data[0]
-          rel = tag_data[1]
-          if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-          elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
-            nil
-          end
-          item[clean_tag("#{tag}+#{rel}")] = clean_content(tag, Regexp.last_match(3), Regexp.last_match(4)) if Regexp.last_match(3) || Regexp.last_match(4)
-        elsif tag.to_s.include?("#")
-          tag_data = tag.to_s.split("#")
-          tag = tag_data[0]
-          attrib = tag_data[1]
-          if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-          elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
-            nil
-          end
-          item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag, attrib, Regexp.last_match(3)) if Regexp.last_match(3)
-        else
-          if match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi
-            nil
-          elsif match[3] =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
-            nil
-            end
-          item[clean_tag(tag)] = clean_content(tag, Regexp.last_match(2), Regexp.last_match(3)) if Regexp.last_match(2) || Regexp.last_match(3)
-        end
+        parse_item_tag(item, tag, match[3])
       end
-      def item.method_missing(name, *_args)
-        self[name]
- end
+      item.define_singleton_method(:method_missing) { |name, *| self[name] }
       @items << item
     end
   end
 
-  def clean_content(tag, attrs, content)
-    content = content.to_s
-    case tag
-    when :pubDate, :lastBuildDate, :published, :updated, :expirationDate, :modified, :'dc:date'
-      begin
-  Time.parse(content)
-rescue StandardError
-  unescape(content)
-end
-    when :author, :contributor, :skipHours, :skipDays
-      unescape(content.gsub(/<.*?>/, ""))
-    else
-      content.empty? && "#{attrs} " =~ /href=['"]?([^'"]*)['" ]/mi ? Regexp.last_match(1).strip : unescape(content)
-    end
+  # @rbs (Hash[Symbol, untyped], Symbol, String?) -> void
+  def parse_item_tag(item, tag, content)
+    return if content.nil?
+
+    tag_str = tag.to_s
+
+    return parse_rel_tag(item, tag_str, content) if tag_str.include?("+")
+    return parse_attr_tag(item, tag_str, content) if tag_str.include?("#")
+
+    parse_simple_tag(item, tag, content)
   end
 
+  # @rbs (Hash[Symbol, untyped], String, String) -> void
+  def parse_rel_tag(item, tag_str, content)
+    tag, rel = tag_str.split("+")
+    return unless tag && rel
+
+    content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
+      content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
+
+    return unless Regexp.last_match(3) || Regexp.last_match(4)
+
+    item[clean_tag("#{tag}+#{rel}")] = clean_content(tag.to_sym, Regexp.last_match(3), Regexp.last_match(4))
+  end
+
+  # @rbs (Hash[Symbol, untyped], String, String) -> void
+  def parse_attr_tag(item, tag_str, content)
+    tag, attrib = tag_str.split("#")
+    return unless tag && attrib
+
+    content =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
+      content =~ %r{<(rss:|atom:)?#{tag}(.*?)#{attrib}=['"](.*?)['"](.*?)/\s*>}mi
+
+    return unless Regexp.last_match(3)
+
+    item[clean_tag("#{tag}_#{attrib}")] = clean_content(tag.to_sym, attrib, Regexp.last_match(3))
+  end
+
+  # @rbs (Hash[Symbol, untyped], Symbol, String) -> void
+  def parse_simple_tag(item, tag, content)
+    content =~ %r{<(rss:|atom:)?#{tag}(.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
+      content =~ %r{<(rss:|atom:)?#{tag}(.*?)/\s*>}mi
+
+    return unless Regexp.last_match(2) || Regexp.last_match(3)
+
+    item[clean_tag(tag)] = clean_content(tag, Regexp.last_match(2), Regexp.last_match(3))
+  end
+
+  # @rbs (Symbol, String?, String?) -> (Time | String)
+  def clean_content(tag, attrs, content)
+    content = content.to_s
+
+    return parse_date(content) if DATE_TAGS.include?(tag)
+    return unescape(content.gsub(/<.*?>/, "")) if STRIP_HTML_TAGS.include?(tag)
+    return extract_href(attrs) if content.empty? && attrs
+
+    unescape(content)
+  end
+
+  # @rbs (String) -> (Time | String)
+  def parse_date(content)
+    Time.parse(content)
+  rescue StandardError
+    unescape(content)
+  end
+
+  # @rbs (String?) -> String
+  def extract_href(attrs)
+    return "" unless "#{attrs} " =~ /href=['"]?([^'"]*)['" ]/mi
+
+    Regexp.last_match(1)&.strip || ""
+  end
+
+  # @rbs (Symbol | String) -> Symbol
   def clean_tag(tag)
     tag.to_s.tr(":", "_").intern
   end
 
+  # @rbs (String) -> String
   def unescape(content)
-    if content =~ /([^-_.!~*'()a-zA-Z\d;\/?:@&=+$,\[\]]%)/
+    if content =~ %r{([^-_.!~*'()a-zA-Z\d;/?:@&=+$,\[\]]%)}
       CGI.unescape(content)
     else
       content
