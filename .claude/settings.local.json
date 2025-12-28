@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(bundle exec rubocop:*)",
-      "Bash(bundle exec rbs-inline:*)",
-      "Bash(bundle exec steep check:*)"
-    ]
-  }
-}
