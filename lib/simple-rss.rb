@@ -10,8 +10,9 @@ class SimpleRSS
   # @rbs @source: String
   # @rbs @options: Hash[Symbol, untyped]
 
-  attr_reader :items, :source
-  alias entries items
+  attr_reader :items #: Array[Hash[Symbol, untyped]]
+  attr_reader :source #: String
+  alias entries items #: Array[Hash[Symbol, untyped]]
 
   @@feed_tags = %i[
     id
