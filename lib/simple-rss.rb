@@ -83,6 +83,17 @@ class SimpleRSS
     JSON.generate(as_json)
   end
 
+  alias to_hash as_json
+
+  # @rbs (?format: Symbol) -> String
+  def to_xml(format: :rss2)
+    case format
+    when :rss2 then to_rss2_xml
+    when :atom then to_atom_xml
+    else raise ArgumentError, "Unknown format: #{format}. Supported: :rss2, :atom"
+    end
+  end
+
   class << self
     # @rbs () -> Array[Symbol]
     def feed_tags
@@ -293,6 +304,119 @@ class SimpleRSS
     case value
     when Time then value.iso8601
     else value
+    end
+  end
+
+  # @rbs (String?) -> String
+  def escape_xml(text)
+    return "" if text.nil?
+
+    text.to_s
+        .gsub("&", "&amp;")
+        .gsub("<", "&lt;")
+        .gsub(">", "&gt;")
+        .gsub("'", "&apos;")
+        .gsub('"', "&quot;")
+  end
+
+  # @rbs (Array[String], String, untyped) -> void
+  def add_xml_element(elements, tag, value)
+    elements << "<#{tag}>#{escape_xml(value)}</#{tag}>" if value
+  end
+
+  # @rbs (Array[String], String, untyped, Symbol) -> void
+  def add_xml_time_element(elements, tag, value, format)
+    return unless value.is_a?(Time)
+
+    formatted = format == :rfc2822 ? value.rfc2822 : value.iso8601
+    elements << "<#{tag}>#{formatted}</#{tag}>"
+  end
+
+  # @rbs () -> String
+  def to_rss2_xml
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<rss version="2.0">', "<channel>"]
+    xml.concat(rss2_channel_elements)
+    items.each { |item| xml.concat(rss2_item_elements(item)) }
+    xml << "</channel>"
+    xml << "</rss>"
+    xml.join("\n")
+  end
+
+  # @rbs () -> Array[String]
+  def rss2_channel_elements
+    elements = [] #: Array[String]
+    add_xml_element(elements, "title", instance_variable_get(:@title))
+    add_xml_element(elements, "link", instance_variable_get(:@link))
+    add_xml_element(elements, "description", instance_variable_get(:@description))
+    add_xml_element(elements, "language", instance_variable_get(:@language))
+    add_xml_time_element(elements, "pubDate", instance_variable_get(:@pubDate), :rfc2822)
+    add_xml_time_element(elements, "lastBuildDate", instance_variable_get(:@lastBuildDate), :rfc2822)
+    add_xml_element(elements, "generator", instance_variable_get(:@generator))
+    elements
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> Array[String]
+  def rss2_item_elements(item)
+    elements = ["<item>"] #: Array[String]
+    elements << "<title>#{escape_xml(item[:title])}</title>" if item[:title]
+    elements << "<link>#{escape_xml(item[:link])}</link>" if item[:link]
+    elements << "<description><![CDATA[#{item[:description]}]]></description>" if item[:description]
+    elements << "<pubDate>#{item[:pubDate].rfc2822}</pubDate>" if item[:pubDate].is_a?(Time)
+    elements << "<guid>#{escape_xml(item[:guid])}</guid>" if item[:guid]
+    elements << "<author>#{escape_xml(item[:author])}</author>" if item[:author]
+    elements << "<category>#{escape_xml(item[:category])}</category>" if item[:category]
+    elements << "</item>"
+    elements
+  end
+
+  # @rbs () -> String
+  def to_atom_xml
+    xml = ['<?xml version="1.0" encoding="UTF-8"?>', '<feed xmlns="http://www.w3.org/2005/Atom">']
+    xml.concat(atom_feed_elements)
+    items.each { |item| xml.concat(atom_entry_elements(item)) }
+    xml << "</feed>"
+    xml.join("\n")
+  end
+
+  # @rbs () -> Array[String]
+  def atom_feed_elements
+    elements = [] #: Array[String]
+    title_val = instance_variable_get(:@title)
+    link_val = instance_variable_get(:@link)
+    id_val = instance_variable_get(:@id)
+    add_xml_element(elements, "title", title_val)
+    elements << "<link href=\"#{escape_xml(link_val)}\" rel=\"alternate\"/>" if link_val
+    elements << "<id>#{escape_xml(id_val || link_val)}</id>" if link_val
+    add_xml_time_element(elements, "updated", instance_variable_get(:@updated), :iso8601)
+    add_xml_element(elements, "subtitle", instance_variable_get(:@subtitle))
+    author_val = instance_variable_get(:@author)
+    elements << "<author><name>#{escape_xml(author_val)}</name></author>" if author_val
+    add_xml_element(elements, "generator", instance_variable_get(:@generator))
+    elements
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> Array[String]
+  def atom_entry_elements(item)
+    elements = ["<entry>"] #: Array[String]
+    elements << "<title>#{escape_xml(item[:title])}</title>" if item[:title]
+    elements << "<link href=\"#{escape_xml(item[:link])}\" rel=\"alternate\"/>" if item[:link]
+    elements << "<id>#{escape_xml(item[:id] || item[:guid] || item[:link])}</id>" if item[:id] || item[:guid] || item[:link]
+    elements << "<updated>#{item[:updated].iso8601}</updated>" if item[:updated].is_a?(Time)
+    atom_entry_published(elements, item)
+    elements << "<summary><![CDATA[#{item[:summary] || item[:description]}]]></summary>" if item[:summary] || item[:description]
+    elements << "<content><![CDATA[#{item[:content]}]]></content>" if item[:content]
+    elements << "<author><name>#{escape_xml(item[:author])}</name></author>" if item[:author]
+    elements << "<category term=\"#{escape_xml(item[:category])}\"/>" if item[:category]
+    elements << "</entry>"
+    elements
+  end
+
+  # @rbs (Array[String], Hash[Symbol, untyped]) -> void
+  def atom_entry_published(elements, item)
+    if item[:published].is_a?(Time)
+      elements << "<published>#{item[:published].iso8601}</published>"
+    elsif item[:pubDate].is_a?(Time)
+      elements << "<published>#{item[:pubDate].iso8601}</published>"
     end
   end
 

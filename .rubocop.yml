@@ -63,9 +63,9 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 35
 
-# Class length for SimpleRSS
+# Class length for SimpleRSS (single-file library)
 Metrics/ClassLength:
-  Max: 250
+  Max: 310
 
 # Frozen string literal is optional for this gem
 Style/FrozenStringLiteralComment:
