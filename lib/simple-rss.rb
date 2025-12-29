@@ -150,7 +150,7 @@ class SimpleRSS
 
     private
 
-    # @rbs (URI::Generic, Hash[Symbol, untyped]) -> Net::HTTPResponse
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
     def perform_fetch(uri, options)
       http = build_http(uri, options)
       request = build_request(uri, options)
@@ -159,7 +159,7 @@ class SimpleRSS
       handle_redirect(response, options) || response
     end
 
-    # @rbs (URI::Generic, Hash[Symbol, untyped]) -> Net::HTTP
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
     def build_http(uri, options)
       host = uri.host || raise(SimpleRSSError, "Invalid URL: missing host")
       http = Net::HTTP.new(host, uri.port)
@@ -174,7 +174,7 @@ class SimpleRSS
       http
     end
 
-    # @rbs (URI::Generic, Hash[Symbol, untyped]) -> Net::HTTP::Get
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
     def build_request(uri, options)
       request = Net::HTTP::Get.new(uri)
       request["User-Agent"] = "SimpleRSS/#{VERSION}"
@@ -189,7 +189,7 @@ class SimpleRSS
       request
     end
 
-    # @rbs (Net::HTTPResponse, Hash[Symbol, untyped]) -> Net::HTTPResponse?
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
     def handle_redirect(response, options)
       return nil unless response.is_a?(Net::HTTPRedirection)
       return nil if options[:follow_redirects] == false
