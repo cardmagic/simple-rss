@@ -4,6 +4,12 @@ require "cgi"
 require "time"
 
 class SimpleRSS
+  # @rbs skip
+  include Enumerable
+
+  # @rbs!
+  #   include Enumerable[Hash[Symbol, untyped]]
+
   VERSION = "2.0.0".freeze
 
   # @rbs @items: Array[Hash[Symbol, untyped]]
@@ -63,6 +69,31 @@ class SimpleRSS
     self
   end
   alias feed channel
+
+  # Iterate over all items in the feed
+  #
+  # @rbs () { (Hash[Symbol, untyped]) -> void } -> self
+  #    | () -> Enumerator[Hash[Symbol, untyped], self]
+  def each(&block)
+    return enum_for(:each) unless block
+
+    items.each(&block)
+    self
+  end
+
+  # Access an item by index
+  #
+  # @rbs (Integer) -> Hash[Symbol, untyped]?
+  def [](index)
+    items[index]
+  end
+
+  # Get the n most recent items, sorted by date
+  #
+  # @rbs (?Integer) -> Array[Hash[Symbol, untyped]]
+  def latest(count = 10)
+    items.sort_by { |item| item[:pubDate] || item[:updated] || Time.at(0) }.reverse.first(count)
+  end
 
   # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
   def as_json(_options = {})
