@@ -15,6 +15,26 @@ A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. Design
 - Extensible tag definitions
 - Zero runtime dependencies
 
+## What's New in 2.0
+
+Version 2.0 is a major update with powerful new capabilities:
+
+- **URL Fetching** - One-liner feed fetching with `SimpleRSS.fetch(url)`. Supports timeouts, custom headers, and automatic redirect following.
+
+- **Conditional GET** - Bandwidth-efficient polling with ETag and Last-Modified support. Returns `nil` when feeds haven't changed (304 Not Modified).
+
+- **JSON Serialization** - Export feeds with `to_json`, `to_hash`, and Rails-compatible `as_json`. Time objects serialize to ISO 8601.
+
+- **XML Serialization** - Convert any parsed feed to clean RSS 2.0 or Atom XML with `to_xml(format: :rss2)` or `to_xml(format: :atom)`.
+
+- **Array Tags** - Collect all occurrences of a tag (like multiple categories) with the `array_tags:` option.
+
+- **Attribute Parsing** - Extract attributes from feed, item, and media tags using the `tag#attr` syntax.
+
+- **UTF-8 Normalization** - All parsed content is automatically normalized to UTF-8 encoding.
+
+- **Modern Ruby** - Full compatibility with Ruby 3.1 through 4.0, with RBS type annotations and Steep type checking.
+
 ## Installation
 
 Add to your Gemfile:
