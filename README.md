@@ -1,7 +1,7 @@
 # SimpleRSS
 
 [![Gem Version](https://badge.fury.io/rb/simple-rss.svg)](https://badge.fury.io/rb/simple-rss)
-[![CI](https://github.com/cardmagic/simple-rss/actions/workflows/ci.yml/badge.svg)](https://github.com/cardmagic/simple-rss/actions/workflows/ci.yml)
+[![CI](https://github.com/cardmagic/simple-rss/actions/workflows/ruby.yml/badge.svg)](https://github.com/cardmagic/simple-rss/actions/workflows/ruby.yml)
 [![License: LGPL](https://img.shields.io/badge/License-LGPL-blue.svg)](https://opensource.org/licenses/LGPL-3.0)
 
 A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. Designed to be backwards compatible with Ruby's standard RSS parser while handling malformed feeds gracefully.
