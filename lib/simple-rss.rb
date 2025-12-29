@@ -4,7 +4,11 @@ require "cgi"
 require "time"
 
 class SimpleRSS
+  # @rbs skip
   include Enumerable
+
+  # @rbs!
+  #   include Enumerable[Hash[Symbol, untyped]]
 
   VERSION = "2.0.0".freeze
 
