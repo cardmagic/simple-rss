@@ -37,7 +37,10 @@ class FetchTest < Test::Unit::TestCase
   # Test fetch with invalid URL raises error
 
   def test_fetch_raises_on_invalid_host
-    assert_raise(SocketError, Socket::ResolutionError, Errno::ECONNREFUSED, SimpleRSSError) do
+    # Socket::ResolutionError was added in Ruby 3.3, use SocketError for older versions
+    expected_errors = [SocketError, Errno::ECONNREFUSED, SimpleRSSError]
+    expected_errors << Socket::ResolutionError if defined?(Socket::ResolutionError)
+    assert_raise(*expected_errors) do
       SimpleRSS.fetch("http://this-host-does-not-exist-12345.invalid/feed.xml", timeout: 1)
     end
   end
