@@ -7,4 +7,6 @@ target :lib do
   library "time"
   library "cgi"
   library "json"
+  library "uri"
+  library "net-http"
 end
