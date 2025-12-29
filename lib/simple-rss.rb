@@ -9,9 +9,13 @@ class SimpleRSS
   # @rbs @items: Array[Hash[Symbol, untyped]]
   # @rbs @source: String
   # @rbs @options: Hash[Symbol, untyped]
+  # @rbs @etag: String?
+  # @rbs @last_modified: String?
 
   attr_reader :items #: Array[Hash[Symbol, untyped]]
   attr_reader :source #: String
+  attr_reader :etag #: String?
+  attr_reader :last_modified #: String?
   alias entries items #: Array[Hash[Symbol, untyped]]
 
   @@feed_tags = %i[
@@ -120,6 +124,84 @@ class SimpleRSS
     # @rbs (untyped, ?Hash[Symbol, untyped]) -> SimpleRSS
     def parse(source, options = {})
       new source, options
+    end
+
+    # Fetch and parse a feed from a URL
+    # Returns nil if conditional GET returns 304 Not Modified
+    #
+    # @rbs (String, ?Hash[Symbol, untyped]) -> SimpleRSS?
+    def fetch(url, options = {})
+      require "net/http"
+      require "uri"
+
+      uri = URI.parse(url)
+      response = perform_fetch(uri, options)
+
+      return nil if response.is_a?(Net::HTTPNotModified)
+
+      raise SimpleRSSError, "HTTP #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
+
+      body = response.body.force_encoding(Encoding::UTF_8)
+      feed = parse(body, options)
+      feed.instance_variable_set(:@etag, response["ETag"])
+      feed.instance_variable_set(:@last_modified, response["Last-Modified"])
+      feed
+    end
+
+    private
+
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
+    def perform_fetch(uri, options)
+      http = build_http(uri, options)
+      request = build_request(uri, options)
+
+      response = http.request(request)
+      handle_redirect(response, options) || response
+    end
+
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
+    def build_http(uri, options)
+      host = uri.host || raise(SimpleRSSError, "Invalid URL: missing host")
+      http = Net::HTTP.new(host, uri.port)
+      http.use_ssl = uri.scheme == "https"
+
+      timeout = options[:timeout]
+      if timeout
+        http.open_timeout = timeout
+        http.read_timeout = timeout
+      end
+
+      http
+    end
+
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
+    def build_request(uri, options)
+      request = Net::HTTP::Get.new(uri)
+      request["User-Agent"] = "SimpleRSS/#{VERSION}"
+
+      # Conditional GET headers
+      request["If-None-Match"] = options[:etag] if options[:etag]
+      request["If-Modified-Since"] = options[:last_modified] if options[:last_modified]
+
+      # Custom headers
+      options[:headers]&.each { |key, value| request[key] = value }
+
+      request
+    end
+
+    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
+    def handle_redirect(response, options)
+      return nil unless response.is_a?(Net::HTTPRedirection)
+      return nil if options[:follow_redirects] == false
+
+      location = response["Location"]
+      return nil unless location
+
+      redirects = (options[:_redirects] || 0) + 1
+      raise SimpleRSSError, "Too many redirects" if redirects > 5
+
+      new_options = options.merge(_redirects: redirects)
+      perform_fetch(URI.parse(location), new_options)
     end
   end
 

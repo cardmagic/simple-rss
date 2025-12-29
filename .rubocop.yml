@@ -65,7 +65,7 @@ Metrics/PerceivedComplexity:
 
 # Class length for SimpleRSS (single-file library)
 Metrics/ClassLength:
-  Max: 310
+  Max: 360
 
 # Frozen string literal is optional for this gem
 Style/FrozenStringLiteralComment:
