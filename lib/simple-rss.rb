@@ -60,6 +60,29 @@ class SimpleRSS
   end
   alias feed channel
 
+  # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
+  def as_json(_options = {})
+    hash = {} #: Hash[Symbol, untyped]
+
+    @@feed_tags.each do |tag|
+      tag_cleaned = clean_tag(tag)
+      value = instance_variable_get("@#{tag_cleaned}")
+      hash[tag_cleaned] = serialize_value(value) if value
+    end
+
+    hash[:items] = items.map do |item|
+      item.transform_values { |v| serialize_value(v) }
+    end
+
+    hash
+  end
+
+  # @rbs (*untyped) -> String
+  def to_json(*)
+    require "json"
+    JSON.generate(as_json)
+  end
+
   class << self
     # @rbs () -> Array[Symbol]
     def feed_tags
@@ -263,6 +286,14 @@ class SimpleRSS
   # @rbs (Symbol | String) -> Symbol
   def clean_tag(tag)
     tag.to_s.tr(":", "_").intern
+  end
+
+  # @rbs (untyped) -> untyped
+  def serialize_value(value)
+    case value
+    when Time then value.iso8601
+    else value
+    end
   end
 
   # @rbs (String) -> String
