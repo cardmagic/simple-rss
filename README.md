@@ -35,6 +35,8 @@ Version 2.0 is a major update with powerful new capabilities:
 
 - **Modern Ruby** - Full compatibility with Ruby 3.1 through 4.0, with RBS type annotations and Steep type checking.
 
+- **Enumerable Support** - Iterate feeds naturally with `each`, `map`, `select`, and all Enumerable methods. Access items by index with `rss[0]` and get the latest items sorted by date with `latest(n)`.
+
 ## Installation
 
 Add to your Gemfile:
@@ -134,6 +136,30 @@ Date fields are automatically parsed into `Time` objects:
 ```ruby
 item.pubDate.class  # => Time
 item.pubDate.year   # => 2024
+```
+
+### Iterating with Enumerable
+
+SimpleRSS includes `Enumerable`, so you can iterate feeds naturally:
+
+```ruby
+feed = SimpleRSS.parse(xml)
+
+# Iterate over items
+feed.each { |item| puts item.title }
+
+# Use any Enumerable method
+titles = feed.map { |item| item.title }
+tech_posts = feed.select { |item| item.category == "tech" }
+first_five = feed.first(5)
+total = feed.count
+
+# Access items by index
+feed[0].title   # first item
+feed[-1].title  # last item
+
+# Get the n most recent items (sorted by pubDate or updated)
+feed.latest(10)
 ```
 
 ### JSON Serialization
@@ -244,6 +270,9 @@ Fetch and parse a feed from a URL.
 |--------|-------------|
 | `#channel` / `#feed` | Returns self (for RSS/Atom style access) |
 | `#items` / `#entries` | Array of parsed items |
+| `#each` | Iterate over items (includes `Enumerable`) |
+| `#[](index)` | Access item by index |
+| `#latest(n = 10)` | Get n most recent items by date |
 | `#to_json` | JSON string representation |
 | `#to_hash` / `#as_json` | Hash representation |
 | `#to_xml(format:)` | XML string (`:rss2` or `:atom`) |
