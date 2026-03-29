@@ -241,10 +241,10 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
     # @rbs (*SimpleRSS) -> Array[Hash[Symbol, untyped]]
     def merge(*feeds)
-      return [] if feeds.empty?
+      first_feed = feeds.first
+      return [] if first_feed.nil?
 
-      head, *tail = feeds
-      head.merge(*tail)
+      first_feed.merge(*feeds.drop(1))
     end
 
     # Fetch and parse a feed from a URL
@@ -380,7 +380,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
         parse_item_tag(item, tag, match[3], match[2])
       end
-      item.define_singleton_method(:method_missing) { |name, *| self[name] }
+      item.define_singleton_method(:method_missing) { |name, *_args| self[name] }
       @items << item
     end
   end
