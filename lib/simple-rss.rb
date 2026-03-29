@@ -3,7 +3,7 @@
 require "cgi"
 require "time"
 
-class SimpleRSS
+class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs skip
   include Enumerable
 
@@ -616,5 +616,4 @@ class SimpleRSS
   end
 end
 
-class SimpleRSSError < StandardError
-end
+SimpleRSSError = Class.new(StandardError)
