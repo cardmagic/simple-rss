@@ -52,6 +52,9 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     media:title media:thumbnail#url media:thumbnail#height media:thumbnail#width
     media:credit media:credit#role
     media:category media:category#scheme
+    media:description
+    enclosure#url enclosure#type enclosure#length
+    itunes:duration itunes:image#href
   ]
 
   # @rbs (untyped, ?Hash[Symbol, untyped]) -> void
@@ -167,6 +170,26 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   def dedupe
     @items = dedupe_items(items)
     self
+  end
+
+  # @rbs () -> Array[Hash[Symbol, untyped]]
+  def enclosures
+    items.filter_map do |item|
+      enclosure_url = item[:enclosure_url]
+      next if blank_value?(enclosure_url)
+
+      {
+        url: enclosure_url,
+        type: item[:enclosure_type],
+        length: item[:enclosure_length],
+        item: item
+      }
+    end
+  end
+
+  # @rbs () -> Array[String]
+  def images
+    items.flat_map { |item| item_image_urls(item) }.uniq
   end
 
   # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
@@ -381,7 +404,29 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
         parse_item_tag(item, tag, match[3], match[2])
       end
       item.define_singleton_method(:method_missing) { |name, *_args| self[name] }
+      add_item_media_helpers(item)
       @items << item
+    end
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> void
+  def add_item_media_helpers(item)
+    item.define_singleton_method(:has_media?) do
+      [
+        self[:media_content_url],
+        self[:media_thumbnail_url],
+        self[:enclosure_url],
+        self[:itunes_image_href]
+      ].any? { |value| !value.nil? && !value.to_s.strip.empty? }
+    end
+
+    item.define_singleton_method(:media_url) do
+      [
+        self[:media_content_url],
+        self[:media_thumbnail_url],
+        self[:enclosure_url],
+        self[:itunes_image_href]
+      ].find { |value| !value.nil? && !value.to_s.strip.empty? }
     end
   end
 
@@ -571,6 +616,18 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     return date if date.is_a?(Time)
 
     nil
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> Array[String]
+  def item_image_urls(item)
+    [item[:media_thumbnail_url], item[:media_content_url], item[:itunes_image_href]]
+      .compact
+      .reject { |url| blank_value?(url) }
+  end
+
+  # @rbs (untyped) -> bool
+  def blank_value?(value)
+    value.to_s.strip.empty?
   end
 
   # @rbs (untyped) -> untyped
