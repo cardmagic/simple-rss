@@ -212,7 +212,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     def valid?(source, options = {})
       parse(source, options)
       true
-    rescue SimpleRSSError
+    rescue StandardError
       false
     end
 

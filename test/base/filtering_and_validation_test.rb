@@ -50,6 +50,15 @@ class FilteringAndValidationTest < Test::Unit::TestCase
     assert_equal false, SimpleRSS.valid?(invalid_xml)
   end
 
+  def test_class_valid_returns_false_when_source_read_fails
+    unreadable_source = Object.new
+    unreadable_source.define_singleton_method(:read) do
+      raise IOError, "stream closed"
+    end
+
+    assert_equal false, SimpleRSS.valid?(unreadable_source)
+  end
+
   def test_instance_valid_requires_metadata_and_items
     valid_feed = SimpleRSS.parse <<~XML
       <?xml version="1.0" encoding="UTF-8"?>
