@@ -146,6 +146,29 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # @rbs (*SimpleRSS) -> Array[Hash[Symbol, untyped]]
+  def merge(*feeds)
+    all_items = [items, *feeds.map(&:items)].flatten
+    dedupe_items(sorted_items_by_date(all_items))
+  end
+
+  # @rbs (SimpleRSS) -> Hash[Symbol, Array[Hash[Symbol, untyped]]]
+  def diff(other)
+    other_keys = keyed_item_set(other.items)
+    current_keys = keyed_item_set(items)
+
+    {
+      added: select_new_keyed_items(other.items, current_keys),
+      removed: select_new_keyed_items(items, other_keys)
+    }
+  end
+
+  # @rbs () -> self
+  def dedupe
+    @items = dedupe_items(items)
+    self
+  end
+
   # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
   def as_json(_options = {})
     hash = {} #: Hash[Symbol, untyped]
@@ -214,6 +237,14 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       true
     rescue StandardError
       false
+    end
+
+    # @rbs (*SimpleRSS) -> Array[Hash[Symbol, untyped]]
+    def merge(*feeds)
+      return [] if feeds.empty?
+
+      head, *tail = feeds
+      head.merge(*tail)
     end
 
     # Fetch and parse a feed from a URL
@@ -481,6 +512,65 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs (Hash[Symbol, untyped]) -> Array[untyped]
   def searchable_fields(item)
     [item[:title], item[:description], item[:summary], item[:content]]
+  end
+
+  # @rbs (Array[Hash[Symbol, untyped]]) -> Set[String]
+  def keyed_item_set(item_list)
+    item_list.each_with_object(Set.new) do |item, keys|
+      key = item_key(item)
+      next if key.nil?
+
+      keys.add(key)
+    end
+  end
+
+  # @rbs (Array[Hash[Symbol, untyped]], Set[String]) -> Array[Hash[Symbol, untyped]]
+  def select_new_keyed_items(item_list, known_keys)
+    item_list.select do |item|
+      key = item_key(item)
+      !key.nil? && !known_keys.include?(key)
+    end
+  end
+
+  # @rbs (Array[Hash[Symbol, untyped]]) -> Array[Hash[Symbol, untyped]]
+  def sorted_items_by_date(item_list)
+    keyed_items, unkeyed_items = item_list.partition { |item| !item_key(item).nil? }
+    keyed_items.sort_by { |item| item_date(item) || Time.at(0) }.reverse + unkeyed_items
+  end
+
+  # @rbs (Array[Hash[Symbol, untyped]]) -> Array[Hash[Symbol, untyped]]
+  def dedupe_items(item_list)
+    seen_keys = Set.new
+
+    item_list.each_with_object([]) do |item, unique_items|
+      key = item_key(item)
+
+      if key.nil?
+        unique_items << item
+        next
+      end
+
+      next if seen_keys.include?(key)
+
+      seen_keys.add(key)
+      unique_items << item
+    end
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> String?
+  def item_key(item)
+    key = item[:guid] || item[:id] || item[:link]
+    return nil if key.nil?
+
+    key.to_s
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> Time?
+  def item_date(item)
+    date = item[:pubDate] || item[:updated] || item[:published]
+    return date if date.is_a?(Time)
+
+    nil
   end
 
   # @rbs (untyped) -> untyped
