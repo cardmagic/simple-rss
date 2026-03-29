@@ -191,6 +191,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   def images
     items.flat_map { |item| item_image_urls(item) }.uniq
   end
+
   # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
   def as_json(_options = {})
     hash = {} #: Hash[Symbol, untyped]
@@ -411,8 +412,12 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs (Hash[Symbol, untyped]) -> void
   def add_item_media_helpers(item)
     item.define_singleton_method(:has_media?) do
-      url = media_url
-      !url.nil? && !url.to_s.strip.empty?
+      [
+        self[:media_content_url],
+        self[:media_thumbnail_url],
+        self[:enclosure_url],
+        self[:itunes_image_href]
+      ].any? { |value| !value.nil? && !value.to_s.strip.empty? }
     end
 
     item.define_singleton_method(:media_url) do
