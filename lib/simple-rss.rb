@@ -616,4 +616,5 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   end
 end
 
-SimpleRSSError = Class.new(StandardError)
+class SimpleRSSError < StandardError # rubocop:disable Style/OneClassPerFile
+end
