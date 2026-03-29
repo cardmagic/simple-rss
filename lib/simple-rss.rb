@@ -3,7 +3,7 @@
 require "cgi"
 require "time"
 
-class SimpleRSS
+class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs skip
   include Enumerable
 
@@ -95,6 +95,57 @@ class SimpleRSS
     items.sort_by { |item| item[:pubDate] || item[:updated] || Time.at(0) }.reverse.first(count)
   end
 
+  # @rbs () -> Symbol
+  def feed_type
+    atom_namespaced_feed = source.match?(/<(atom:)?feed\b[^>]*xmlns(:\w+)?=['"][^'"]*atom/i)
+    return :atom if atom_namespaced_feed
+    return :rss2 if source.match?(/<rss[^>]*version=['"]2/i)
+    return :rss1 if source.match?(/<rdf:RDF/i)
+    return :rss09 if source.match?(/<rss[^>]*version=['"]0\.9/i)
+
+    :unknown
+  end
+
+  # @rbs () -> bool
+  def valid?
+    return false if items.empty?
+
+    title_value = instance_variable_get(:@title)
+    link_value = instance_variable_get(:@link)
+    return true if title_value || link_value
+
+    false
+  end
+
+  # @rbs (Time) -> Array[Hash[Symbol, untyped]]
+  def items_since(time)
+    items.select do |item|
+      item_date = item[:pubDate] || item[:updated] || item[:published]
+      item_date.is_a?(Time) && item_date > time
+    end
+  end
+
+  # @rbs (String) -> Array[Hash[Symbol, untyped]]
+  def items_by_category(name)
+    query = name.to_s.downcase
+
+    items.select do |item|
+      category = item[:category]
+      next false if category.nil?
+
+      category_matches_query?(category, query)
+    end
+  end
+
+  # @rbs (String) -> Array[Hash[Symbol, untyped]]
+  def search(query)
+    pattern = Regexp.new(Regexp.escape(query.to_s), Regexp::IGNORECASE)
+
+    items.select do |item|
+      searchable_fields(item).any? { |field| field.to_s.match?(pattern) }
+    end
+  end
+
   # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
   def as_json(_options = {})
     hash = {} #: Hash[Symbol, untyped]
@@ -155,6 +206,14 @@ class SimpleRSS
     # @rbs (untyped, ?Hash[Symbol, untyped]) -> SimpleRSS
     def parse(source, options = {})
       new source, options
+    end
+
+    # @rbs (untyped, ?Hash[Symbol, untyped]) -> bool
+    def valid?(source, options = {})
+      parse(source, options)
+      true
+    rescue StandardError
+      false
     end
 
     # Fetch and parse a feed from a URL
@@ -412,6 +471,18 @@ class SimpleRSS
     tag.to_s.tr(":", "_").intern
   end
 
+  # @rbs (untyped, String) -> bool
+  def category_matches_query?(category, query)
+    return category.any? { |value| value.to_s.downcase.include?(query) } if category.is_a?(Array)
+
+    category.to_s.downcase.include?(query)
+  end
+
+  # @rbs (Hash[Symbol, untyped]) -> Array[untyped]
+  def searchable_fields(item)
+    [item[:title], item[:description], item[:summary], item[:content]]
+  end
+
   # @rbs (untyped) -> untyped
   def serialize_value(value)
     case value
@@ -545,5 +616,5 @@ class SimpleRSS
   end
 end
 
-class SimpleRSSError < StandardError
+class SimpleRSSError < StandardError # rubocop:disable Style/OneClassPerFile
 end
