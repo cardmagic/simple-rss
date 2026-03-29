@@ -36,7 +36,20 @@ attr_reader :name #: String         # attribute type
 
 ## Release
 
-Tag with `v*` to trigger automated RubyGems release:
+Before tagging a release, bump the version in both files:
+- `simple-rss.gemspec` (`s.version`)
+- `lib/simple-rss.rb` (`VERSION`)
+
+Both values must match. If they do not, CI may build and attempt to push the wrong gem version.
+
+Then tag with `v*` to trigger automated RubyGems release:
 ```bash
-git tag v1.3.4 && git push origin v1.3.4
+git tag -a v1.3.4 -m "v1.3.4" && git push origin v1.3.4
+```
+
+Quick preflight checks:
+```bash
+grep -n "s.version" simple-rss.gemspec
+grep -n "VERSION" lib/simple-rss.rb
+gem build simple-rss.gemspec
 ```

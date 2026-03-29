@@ -10,7 +10,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs!
   #   include Enumerable[Hash[Symbol, untyped]]
 
-  VERSION = "2.0.0".freeze
+  VERSION = "2.2.0".freeze
 
   # @rbs @items: Array[Hash[Symbol, untyped]]
   # @rbs @source: String
