@@ -1,0 +1,13 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+  <title>Nested link media</title>
+  <entry>
+    <title>Story</title>
+    <link href="https://example.com/story" rel="alternate" title="story" type="text/html">
+      <media:content>
+        <media:thumbnail height="60" url="https://example.com/thumbnail.jpg" width="106">
+          <img alt="Thumbnail" src="https://example.com/thumbnail.jpg"/>
+        </media:thumbnail>
+      </media:content>
+    </link>
+  </entry>
+</feed>

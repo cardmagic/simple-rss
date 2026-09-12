@@ -15,9 +15,11 @@ A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. Design
 - Extensible tag definitions
 - Zero runtime dependencies
 
-## What's New in 2.0
+## What's New in 2.x
 
-Version 2.0 is a major update with powerful new capabilities:
+See the [changelog](CHANGELOG.md) for release history and unreleased changes.
+
+The 2.x releases add:
 
 - **URL Fetching** - One-liner feed fetching with `SimpleRSS.fetch(url)`. Supports timeouts, custom headers, and automatic redirect following.
 
@@ -236,6 +238,19 @@ SimpleRSS.item_tags << :"entry#xml:lang"
 | `tag` | `:title` | `.title` | Simple element content |
 | `tag#attr` | `:"media:content#url"` | `.media_content_url` | Attribute value |
 | `tag+rel` | `:"link+alternate"` | `.link_alternate` | Element with specific `rel` attribute |
+
+Relation tags provide both underscore and legacy `+` hash keys. For example,
+`item.link_alternate`, `item[:link_alternate]`, and `item[:"link+alternate"]`
+return the same parsed value. Both keys appear in `to_hash`, `as_json`, and
+`to_json`; they are ordinary hash entries, so reassigning one does not update the
+other. The built-in link relations are `alternate`, `self`, `edit`, and `replies`.
+
+Link relation accessors read `href` from the first direct child link with the
+requested explicit `rel` attribute. Attribute order and child markup do not
+affect the URL. Links inside source metadata, content, or other nested elements
+are excluded. A missing relation or `href` returns `nil`. Relative href values
+remain relative. `item.link` retains its existing extraction behavior; it does
+not select a canonical article URL across relations or feed formats.
 
 ### Collecting Multiple Values
 

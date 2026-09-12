@@ -445,15 +445,67 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (Hash[Symbol, untyped], String, String) -> void
   def parse_rel_tag(item, tag_str, content)
-    tag, rel = tag_str.split("+")
+    tag, rel = tag_str.split("+", 2)
     return unless tag && rel
 
-    content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
-      content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
+    value = if tag == "link"
+              link_relation_href(content, rel)
+            else
+              content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)>(.*?)</(rss:|atom:)?#{tag}>}mi ||
+                content =~ %r{<(rss:|atom:)?#{tag}(.*?)rel=['"]#{rel}['"](.*?)/\s*>}mi
 
-    return unless Regexp.last_match(3) || Regexp.last_match(4)
+              return unless Regexp.last_match(3) || Regexp.last_match(4)
 
-    item[clean_tag("#{tag}+#{rel}")] = clean_content(tag.to_sym, Regexp.last_match(3), Regexp.last_match(4))
+              clean_content(tag.to_sym, Regexp.last_match(3), Regexp.last_match(4))
+            end
+    return if value.nil?
+
+    item[clean_tag("#{tag}+#{rel}")] = value
+    item[clean_tag("#{tag}_#{rel}")] = value
+  end
+
+  # @rbs (String, String) -> String?
+  def link_relation_href(content, relation)
+    attributes = entry_link_attributes(content).find { |link| link["rel"]&.casecmp?(relation) }
+    return unless attributes
+
+    attributes["href"]
+  end
+
+  # @rbs (String) -> Array[Hash[String, String]]
+  def entry_link_attributes(content)
+    links = [] #: Array[Hash[String, String]]
+    depth = 0
+    tokens = %r{<!--.*?-->|<!\[CDATA\[.*?\]\]>|<\?.*?\?>|<(/?)([\w:.-]+)((?:[^<>"']|"[^"]*"|'[^']*')*)>}m
+
+    content.scan(tokens) do
+      closing = Regexp.last_match(1)
+      tag = Regexp.last_match(2)
+      attributes = Regexp.last_match(3)
+      next unless tag
+      next unless attributes
+
+      if closing == "/"
+        depth = [depth - 1, 0].max
+        next
+      end
+
+      links << xml_attributes(attributes) if depth.zero? && %w[link atom:link rss:link].include?(tag.downcase)
+      depth += 1 unless attributes.rstrip.end_with?("/")
+    end
+
+    links
+  end
+
+  # @rbs (String) -> Hash[String, String]
+  def xml_attributes(attributes)
+    values = {} #: Hash[String, String]
+    attributes.scan(/([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/m) do
+      name = Regexp.last_match(1)
+      value = Regexp.last_match(2) || Regexp.last_match(3)
+      values[name.downcase] = value if name && value
+    end
+    values
   end
 
   # @rbs (String, String?) -> void
