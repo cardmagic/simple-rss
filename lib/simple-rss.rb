@@ -95,7 +95,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   #
   # @rbs (?Integer) -> Array[Hash[Symbol, untyped]]
   def latest(count = 10)
-    items.sort_by { |item| item[:pubDate] || item[:updated] || Time.at(0) }.reverse.first(count)
+    sorted_items_by_date(items).first(count)
   end
 
   # @rbs () -> Symbol
@@ -123,8 +123,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs (Time) -> Array[Hash[Symbol, untyped]]
   def items_since(time)
     items.select do |item|
-      item_date = item[:pubDate] || item[:updated] || item[:published]
-      item_date.is_a?(Time) && item_date > time
+      date = item_date(item)
+      date && date > time
     end
   end
 
@@ -152,7 +152,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs (*SimpleRSS) -> Array[Hash[Symbol, untyped]]
   def merge(*feeds)
     all_items = [items, *feeds.map(&:items)].flatten
-    dedupe_items(sorted_items_by_date(all_items))
+    keyed_items, unkeyed_items = all_items.partition { |item| !item_key(item).nil? }
+    dedupe_items(sorted_items_by_date(keyed_items) + unkeyed_items)
   end
 
   # @rbs (SimpleRSS) -> Hash[Symbol, Array[Hash[Symbol, untyped]]]
@@ -579,8 +580,10 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (Array[Hash[Symbol, untyped]]) -> Array[Hash[Symbol, untyped]]
   def sorted_items_by_date(item_list)
-    keyed_items, unkeyed_items = item_list.partition { |item| !item_key(item).nil? }
-    keyed_items.sort_by { |item| item_date(item) || Time.at(0) }.reverse + unkeyed_items
+    item_list.sort_by.with_index do |item, index|
+      date = item_date(item)
+      [date ? -date.to_r : Float::INFINITY, index]
+    end
   end
 
   # @rbs (Array[Hash[Symbol, untyped]]) -> Array[Hash[Symbol, untyped]]
@@ -612,10 +615,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (Hash[Symbol, untyped]) -> Time?
   def item_date(item)
-    date = item[:pubDate] || item[:updated] || item[:published]
-    return date if date.is_a?(Time)
-
-    nil
+    [item[:pubDate], item[:updated], item[:published]].find { |date| date.is_a?(Time) }
   end
 
   # @rbs (Hash[Symbol, untyped]) -> Array[String]

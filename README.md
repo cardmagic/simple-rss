@@ -158,9 +158,21 @@ total = feed.count
 feed[0].title   # first item
 feed[-1].title  # last item
 
-# Get the n most recent items (sorted by pubDate or updated)
+# Get the n most recent items
 feed.latest(10)
 ```
+
+`latest`, `items_since`, and merge ordering use the first successfully parsed date
+from `pubDate`, `updated`, and `published`, in that order. Invalid date strings
+remain available in the original fields. `latest` places entries without a usable
+date after dated entries, including dates before 1970. Equal dates and undated
+entries retain their source order, and `latest` does not modify the feed.
+
+`items_since(time)` returns entries strictly newer than the given time in source
+order, excluding entries without a usable date. Merging sorts identified entries
+by the same date rules and keeps the newest entry for each identity. Equal dates
+keep the first occurrence. Entries without an identity remain at the end in input
+order, regardless of their dates.
 
 ### JSON Serialization
 
