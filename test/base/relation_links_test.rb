@@ -60,8 +60,8 @@ class RelationLinksTest < Test::Unit::TestCase
 
   def test_relations_ignore_nested_source_content_comments_and_cdata
     item = parse_entry(<<~XML).first
-      <source><link rel="alternate" href="/source"/></source>
-      <content type="xhtml"><div><link rel="edit" href="/content"/></div></content>
+      <source xml:base="https://example.com/"><link rel="alternate" href="/source"/></source>
+      <content type="xhtml" xml:base='https://example.com/'><div><link rel="edit" href="/content"/></div></content>
       <!-- <link rel="self" href="/comment"/> -->
       <![CDATA[<link rel="replies" href="/cdata"/>]]>
       <?example <link rel="self" href="/instruction"/> ?>

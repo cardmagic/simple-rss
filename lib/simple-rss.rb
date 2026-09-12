@@ -480,9 +480,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
     content.scan(tokens) do
       closing = Regexp.last_match(1)
-      tag = Regexp.last_match(2)
+      tag = Regexp.last_match(2)&.downcase
       attributes = Regexp.last_match(3)
-      next unless tag
       next unless attributes
 
       if closing == "/"
@@ -490,7 +489,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
         next
       end
 
-      links << xml_attributes(attributes) if depth.zero? && %w[link atom:link rss:link].include?(tag.downcase)
+      links << xml_attributes(attributes) if depth.zero? && %w[link atom:link rss:link].include?(tag)
       depth += 1 unless attributes.rstrip.end_with?("/")
     end
 
