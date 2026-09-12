@@ -98,4 +98,20 @@ class EnumerableTest < Test::Unit::TestCase
     assert_equal "Has Date", latest.first[:title]
     assert_equal "No Date", latest.last[:title]
   end
+
+  def test_latest_preserves_invalid_dates_without_failing
+    feed = SimpleRSS.parse <<~XML
+      <rss version="2.0">
+        <channel>
+          <title>Mixed dates</title>
+          <item><title>Invalid</title><pubDate>not-a-date</pubDate></item>
+          <item><title>Valid</title><pubDate>2026-09-01T00:00:00Z</pubDate></item>
+        </channel>
+      </rss>
+    XML
+
+    assert_equal %w[Valid Invalid], feed.latest.map(&:title)
+    assert_equal "not-a-date", feed.first.pubDate
+    assert_equal %w[Invalid Valid], feed.map(&:title)
+  end
 end

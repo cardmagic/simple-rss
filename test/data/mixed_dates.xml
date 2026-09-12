@@ -1,0 +1,55 @@
+<rss version="2.0">
+  <channel>
+    <title>Mixed dates</title>
+    <item>
+      <title>Missing first</title>
+    </item>
+    <item>
+      <guid>publication</guid>
+      <title>Publication</title>
+      <pubDate>2026-09-01T00:00:00Z</pubDate>
+      <updated>2026-09-05T00:00:00Z</updated>
+      <published>2026-09-06T00:00:00Z</published>
+    </item>
+    <item>
+      <guid>fractional</guid>
+      <title>Fractional</title>
+      <pubDate>2026-09-03T00:00:00.000000001Z</pubDate>
+    </item>
+    <item>
+      <guid>updated-first</guid>
+      <title>Updated first</title>
+      <pubDate>not-a-date</pubDate>
+      <updated>2026-09-03T00:00:00.000000002Z</updated>
+      <published>2026-09-07T00:00:00Z</published>
+    </item>
+    <item>
+      <guid>published</guid>
+      <title>Published</title>
+      <pubDate></pubDate>
+      <updated>not-a-date</updated>
+      <published>2026-09-02T00:00:00Z</published>
+    </item>
+    <item>
+      <guid>historical</guid>
+      <title>Historical</title>
+      <pubDate>1965-01-01T00:00:00Z</pubDate>
+    </item>
+    <item>
+      <guid>updated-second</guid>
+      <title>Updated second</title>
+      <updated>2026-09-03T01:00:00.000000002+01:00</updated>
+    </item>
+    <item>
+      <guid>blank</guid>
+      <title>Blank</title>
+      <pubDate> </pubDate>
+    </item>
+    <item>
+      <guid>invalid</guid>
+      <title>Invalid</title>
+      <pubDate>not-a-date</pubDate>
+      <updated>not-a-date</updated>
+    </item>
+  </channel>
+</rss>
