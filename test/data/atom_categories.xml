@@ -1,0 +1,23 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:topics="http://www.w3.org/2005/Atom">
+  <title>Atom categories</title>
+  <entry>
+    <title>Ruby news</title>
+    <category label="Human label" scheme="https://example.com/topics" term="ruby"/>
+    <category
+      scheme = 'https://example.com/topics'
+      term = 'rails'
+      label = 'Framework'>Ignored element content</category>
+    <topics:category term="Ruby &amp; RSS"/>
+    <category term="ruby"/>
+  </entry>
+  <entry>
+    <title>No usable terms</title>
+    <category label="Label only">Not a term</category>
+    <category term="" label="Empty"/>
+    <category term=" &#32; " label="Whitespace"/>
+  </entry>
+  <entry>
+    <title>Other news</title>
+    <category term="sports"/>
+  </entry>
+</feed>

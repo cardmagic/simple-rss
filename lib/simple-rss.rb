@@ -352,6 +352,9 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   DATE_TAGS = %i[pubDate lastBuildDate published updated expirationDate modified dc:date].freeze
   STRIP_HTML_TAGS = %i[author contributor skipHours skipDays].freeze
+  ATOM_NAMESPACE = "http://www.w3.org/2005/Atom".freeze
+  RSS_NAMESPACES = [nil, "", "http://purl.org/rss/1.0/", "http://my.netscape.com/rdf/simple/0.9/"].freeze
+  XML_TAG_PATTERN = %r{<!--.*?-->|<!\[CDATA\[.*?\]\]>|<\?.*?\?>|<(/?)([\w:.-]+)((?:[^<>"']|"[^"]*"|'[^']*')*)>}m
 
   private
 
@@ -397,12 +400,24 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     end
 
     # RSS items' title, link, and description
-    @source.scan(%r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi) do |match|
+    namespace_contexts = entry_namespaces
+    entry_pattern = %r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi
+    position = 0
+    while (match = entry_pattern.match(@source, position))
+      position = match.end(0)
       item = {} #: Hash[Symbol, untyped]
+      namespaces = namespace_contexts[match.begin(0)]
       @@item_tags.each do |tag|
         next if tag.to_s.strip.empty?
 
-        parse_item_tag(item, tag, match[3], match[2])
+        if tag == :category
+          next unless namespaces
+
+          parse_category_tag(item, match[4].to_s, namespaces, element_namespace("#{match[1]}#{match[2]}", namespaces))
+          next
+        end
+
+        parse_item_tag(item, tag, match[4], match[3])
       end
       item.define_singleton_method(:method_missing) { |name, *_args| self[name] }
       add_item_media_helpers(item)
@@ -474,26 +489,109 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (String) -> Array[Hash[String, String]]
   def entry_link_attributes(content)
-    links = [] #: Array[Hash[String, String]]
-    depth = 0
-    tokens = %r{<!--.*?-->|<!\[CDATA\[.*?\]\]>|<\?.*?\?>|<(/?)([\w:.-]+)((?:[^<>"']|"[^"]*"|'[^']*')*)>}m
+    child_elements(content).filter_map do |tag, attributes, _body|
+      next unless %w[link atom:link rss:link].include?(tag.downcase)
 
-    content.scan(tokens) do
-      closing = Regexp.last_match(1)
-      tag = Regexp.last_match(2)&.downcase
-      attributes = Regexp.last_match(3)
+      xml_attributes(attributes).transform_keys(&:downcase)
+    end
+  end
+
+  # @rbs (String) -> Array[[String, String, String?]]
+  def child_elements(content)
+    elements = [] #: Array[[String, String, String?]]
+    current_element = nil #: [String, String, String?]?
+    depth = 0
+    body_start = 0
+    position = 0
+
+    while (token = XML_TAG_PATTERN.match(content, position))
+      position = token.end(0)
+      attributes = token[3]
       next unless attributes
 
-      if closing == "/"
+      if token[1] == "/"
         depth = [depth - 1, 0].max
+        if depth.zero? && current_element
+          current_element[2] = content[body_start...token.begin(0)]
+          current_element = nil
+        end
         next
       end
 
-      links << xml_attributes(attributes) if depth.zero? && %w[link atom:link rss:link].include?(tag)
-      depth += 1 unless attributes.rstrip.end_with?("/")
+      self_closing = attributes.rstrip.end_with?("/")
+      if depth.zero?
+        element = [token[2].to_s, attributes, nil] #: [String, String, String?]
+        elements << element
+        current_element = element unless self_closing
+        body_start = token.end(0)
+      end
+      depth += 1 unless self_closing
     end
 
-    links
+    elements
+  end
+
+  # @rbs (Hash[Symbol, untyped], String, Hash[String, String], String?) -> void
+  def parse_category_tag(item, content, namespaces, entry_namespace)
+    values = child_elements(content).filter_map do |tag, raw_attributes, body|
+      next unless tag.split(":").last&.casecmp?("category")
+
+      attributes = xml_attributes(raw_attributes)
+      namespace = element_namespace(tag, namespaces.merge(namespace_attributes(raw_attributes)))
+      if namespace == ATOM_NAMESPACE
+        term = CGI.unescapeHTML(attributes["term"].to_s).strip
+        next term unless term.empty?
+
+        next
+      end
+
+      next if entry_namespace == ATOM_NAMESPACE || !RSS_NAMESPACES.include?(namespace)
+      next if tag.include?(":") && namespace.nil?
+      next if body.nil? && (array_tag?(:category) || !raw_attributes.rstrip.end_with?("/"))
+
+      unescape(body.to_s)
+    end
+    return if values.empty?
+
+    item[:category] = array_tag?(:category) ? values : values.first
+  end
+
+  # @rbs () -> Hash[Integer, Hash[String, String]]
+  def entry_namespaces
+    contexts = {} #: Hash[Integer, Hash[String, String]]
+    scopes = [{}] #: Array[Hash[String, String]]
+    position = 0
+
+    while (token = XML_TAG_PATTERN.match(@source, position))
+      position = token.end(0)
+      attributes = token[3]
+      next unless attributes
+
+      if token[1] == "/"
+        scopes.pop if scopes.size > 1
+        next
+      end
+
+      namespaces = scopes.fetch(-1).merge(namespace_attributes(attributes))
+      tag = token[2].to_s.split(":").last
+      contexts[token.begin(0).to_i] = namespaces if %w[item entry].include?(tag&.downcase)
+      scopes << namespaces unless attributes.rstrip.end_with?("/")
+    end
+
+    contexts
+  end
+
+  # @rbs (String) -> Hash[String, String]
+  def namespace_attributes(attributes)
+    xml_attributes(attributes)
+      .select { |name, _value| name == "xmlns" || name.start_with?("xmlns:") }
+      .transform_values { |value| CGI.unescapeHTML(value) }
+  end
+
+  # @rbs (String, Hash[String, String]) -> String?
+  def element_namespace(tag, namespaces)
+    key = tag.include?(":") ? "xmlns:#{tag.split(":").first}" : "xmlns"
+    namespaces[key]
   end
 
   # @rbs (String) -> Hash[String, String]
@@ -502,7 +600,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     attributes.scan(/([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/m) do
       name = Regexp.last_match(1)
       value = Regexp.last_match(2) || Regexp.last_match(3)
-      values[name.downcase] = value if name && value
+      values[name] = value if name && value
     end
     values
   end
