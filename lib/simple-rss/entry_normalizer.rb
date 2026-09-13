@@ -184,16 +184,7 @@ class SimpleRSS::EntryNormalizer
     end
     encoded = extension_elements("encoded", CONTENT).find { |element| !element.text.empty? }
     assign(:content_html, encoded.text, encoded) if encoded && !@values[:content_html]
-    content = extension_elements("content", ATOM).first
-    if content
-      if content.attributes["src"]
-        assign(:content_url, resolve_url(content.attributes["src"], content, :content_url), content)
-      else
-        value, type = text_construct(content, :content)
-        field = type == :html ? :content_html : :content_text
-        assign(field, value, content) unless @values[field]
-      end
-    end
+    read_atom_content
     full_content = @field_elements[:content_html] || @field_elements[:content_text]
     @values[:content_base_url] = base_url(content_container(full_content)) if full_content
     summary = core_elements(atom? ? "summary" : "description").first
@@ -202,6 +193,17 @@ class SimpleRSS::EntryNormalizer
     value, type = atom? ? text_construct(summary, :summary) : [summary.text, :html]
     assign(:summary, value, summary)
     @values[:summary_type] = type if @values[:summary]
+  end
+
+  # @rbs () -> void
+  def read_atom_content
+    content = extension_elements("content", ATOM).first
+    return unless content
+    return assign(:content_url, resolve_url(content.attributes["src"], content, :content_url), content) if content.attributes["src"]
+
+    value, type = text_construct(content, :content)
+    field = type == :html ? :content_html : :content_text
+    assign(field, value, content) unless @values[field]
   end
 
   # @rbs (SimpleRSS::XmlElement) -> SimpleRSS::XmlElement
@@ -315,26 +317,20 @@ class SimpleRSS::EntryNormalizer
     return if value.nil?
     return value.to_f if value.match?(/\A\d+(?:\.\d+)?\z/) && value.to_f.finite?
 
-    if element.matches?("duration", ITUNES) && value.match?(/\A\d+:\d{2}(?::\d{2})?\z/)
-      parts = value.split(":").map(&:to_i)
-      return parts.reduce(0) { |total, part| (total * 60) + part } if parts.drop(1).all? { |part| part < 60 }
+    unless element.matches?("duration", ITUNES) && value.match?(/\A\d+:\d{2}(?::\d{2})?\z/)
+      return issue(:duration_in_seconds, :invalid_number, value, element)
     end
-    issue(:duration_in_seconds, :invalid_number, value, element)
+
+    parts = value.split(":").map(&:to_i)
+    return issue(:duration_in_seconds, :invalid_number, value, element) unless parts.drop(1).all? { |part| part < 60 }
+
+    parts.reduce(0) { |total, part| (total * 60) + part }
   end
 
   # @rbs () -> void
   def read_authors
-    elements = core_elements("author")
-    elements += extension_elements("creator", DUBLIN_CORE) unless atom?
-    if atom? && elements.empty?
-      source = core_elements("source").first
-      elements = source.children.select { |element| element.matches?("author", ATOM) } if source
-      elements = @feed_authors if elements.empty?
-    end
-    @values[:authors] = elements.map do |element|
-      if element.matches?("creator", DUBLIN_CORE)
-        next { name: element.text, email: nil, url: nil, raw: element.raw }
-      end
+    @values[:authors] = author_elements.map do |element|
+      next { name: element.text, email: nil, url: nil, raw: element.raw } if element.matches?("creator", DUBLIN_CORE)
       next { name: nil, email: element.text, url: nil, raw: element.raw } unless element.namespace == ATOM
 
       children = element.children
@@ -343,5 +339,18 @@ class SimpleRSS::EntryNormalizer
       uri = children.find { |child| child.matches?("uri", ATOM) }
       { name: name&.text, email: email&.text, url: uri && resolve_url(uri.text, uri, :author_url), raw: element.raw }
     end
+  end
+
+  # @rbs () -> Array[SimpleRSS::XmlElement]
+  def author_elements
+    elements = core_elements("author")
+    return elements + extension_elements("creator", DUBLIN_CORE) unless atom?
+    return elements unless elements.empty?
+
+    source = core_elements("source").first
+    return @feed_authors unless source
+
+    elements = source.children.select { |element| element.matches?("author", ATOM) }
+    elements.empty? ? @feed_authors : elements
   end
 end

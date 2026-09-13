@@ -304,7 +304,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       raise SimpleRSSError, "HTTP #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
 
       body = response.body.force_encoding(Encoding::UTF_8)
-      feed = parse(body, { source_url: final_uri.to_s }.merge(options))
+      feed = parse(body, options.merge(source_url: final_uri.to_s))
       feed.instance_variable_set(:@etag, response["ETag"])
       feed.instance_variable_set(:@last_modified, response["Last-Modified"])
       feed

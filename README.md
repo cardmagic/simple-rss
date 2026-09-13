@@ -232,7 +232,8 @@ retained. `effective_at` returns `published_at || updated_at` for a normalized
 entry; existing raw-item date ordering is unchanged.
 
 URLs use the applicable ancestor and element `xml:base` declarations, resolved
-against `source_url`. `fetch` supplies the final response URL after redirects;
+against `source_url`. `fetch` always supplies the final response URL after
+redirects, even if its options include a different or nil `source_url`;
 `normalized_entries(source_url: "https://example.com/feed.xml")` can override it
 for one call. Relative redirects are resolved against the current request URL.
 Without a usable base, relative values are preserved and reported in `issues`.

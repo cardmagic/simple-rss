@@ -44,6 +44,23 @@ class NormalizedFetchTest < Test::Unit::TestCase
     assert_nil feed.etag
   end
 
+  def test_fetched_source_url_wins_over_shared_parse_options_without_mutating_them
+    body = '<rss version="2.0"><channel><title>Example</title><item><link>article</link></item></channel></rss>'
+    responses = [[302, { "Location" => "/feeds/final.xml" }, ""], [200, {}, body]] * 2
+    with_server(responses) do |base_url, requests|
+      [nil, "https://wrong.example.com/old.xml"].each do |source_url|
+        options = { source_url: source_url, timeout: 1 }
+        feed = SimpleRSS.fetch("#{base_url}/initial.xml", options)
+
+        assert_equal "#{base_url}/feeds/final.xml", feed.source_url
+        assert_equal "#{base_url}/feeds/article", feed.normalized_entries.first.url
+        assert_equal source_url, options[:source_url]
+        assert_equal "https://override.example.com/article", feed.normalized_entries(source_url: "https://override.example.com/feed.xml").first.url
+      end
+      assert_equal 4, requests.size
+    end
+  end
+
   private
 
   def with_server(responses)
@@ -68,8 +85,8 @@ class NormalizedFetchTest < Test::Unit::TestCase
     yield base_url, requests
     worker.value
   ensure
-    server&.close
     worker&.kill
     worker&.join
+    server&.close
   end
 end
