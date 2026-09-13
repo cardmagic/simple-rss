@@ -176,6 +176,125 @@ by the same date rules and keeps the newest entry for each identity. Equal dates
 keep the first occurrence. Entries without an identity remain at the end in input
 order, regardless of their dates.
 
+### Normalized Entries
+
+Use `normalized_entries` when an importer or digest should handle RSS and Atom
+through the same fields:
+
+```ruby
+feed = SimpleRSS.parse(xml, source_url: "https://example.com/feed.xml")
+entry = feed.normalized_entries.first
+
+entry.identifier       # Publisher's opaque ID/GUID, or nil
+entry.url              # Article URL, preferring an Atom HTML alternate
+entry.published_at     # Time or nil; never filled from an update timestamp
+entry.updated_at       # Time or nil
+entry.content_html     # Full HTML content, when supplied
+entry.content_text     # Full plain text, when supplied
+entry.summary          # Separate synopsis; see summary_type (:html or :text)
+entry.categories       # Nonempty terms, unique in first-seen order
+entry.attachments      # Associated URL, media_type, size_in_bytes, duration_in_seconds
+entry.authors          # Name, email, URL, and source metadata
+entry.issues           # Inspect missing bases, invalid dates/numbers, unsupported content
+entry.raw              # Frozen copy of the original item hash
+entry.raw_xml          # Original entry XML, including unconfigured extensions
+entry.field_sources    # Which XML tag supplied each normalized scalar field
+```
+
+This is an optional, immutable view of the original XML. `items`, `entries`,
+iteration, custom tags, `latest`, `merge`, `diff`, and all existing serialization
+methods keep their current behavior. Normalization neither changes global tag
+configuration nor mutates or freezes raw items. Each call returns fresh snapshots;
+raw item edits are preserved in `raw` but do not rewrite the XML-derived fields.
+Reordering or deduplicating `items` preserves the association with each item's
+original XML. Inserting an unrelated hash into `items` cannot provide that source
+and raises `SimpleRSSError` when normalized.
+
+| Normalized field | RSS mapping | Atom 1.0 mapping |
+| --- | --- | --- |
+| `identifier` | `guid`, without URL decoding or a generated fallback | `id`, without URL decoding or a generated fallback |
+| `url` | Item `link`, then an Atom alternate extension | Alternate `link` (`rel` defaults to alternate); HTML/XHTML first, untyped second, other alternatives last; never a self/API fallback |
+| `published_at` | First parseable `pubDate`, then Dublin Core `date` | `published` |
+| `updated_at` | Atom `updated` extension, then `modified` | `updated` |
+| `content_html` | Explicit mapping, then `content:encoded`, then an HTML/XHTML Atom content extension | Explicit mapping, then `content:encoded` if supplied, then HTML/XHTML `content` |
+| `content_text` | Explicit mapping or a plain-text Atom content extension | Explicit mapping, then plain-text `content` |
+| `summary` | `description`, treated as HTML-capable synopsis | `summary`, honoring text/HTML/XHTML type |
+| `categories` | Repeated category text plus Dublin Core subjects and unsplit Media RSS/iTunes keywords | Category terms plus the same recognized extensions |
+| `attachments` | Each `enclosure` and Media RSS `content` (direct or in a direct Media RSS group) | Each enclosure `link` and the same Media RSS elements |
+| `authors` | Each `author` as its unparsed email value; Dublin Core `creator` as a name | Entry authors, otherwise source authors, otherwise feed authors |
+
+Namespaces are resolved by their declared URI; standard extension prefixes may
+vary. Ordinary metadata must be a direct child of its entry. Nested article
+markup, comments, and unrelated source metadata cannot replace entry fields.
+Missing scalars are `nil`; missing collections are empty arrays. Dates use Ruby's
+permissive `Time.parse`: invalid values produce `nil` and an issue, with the source
+retained. `effective_at` returns `published_at || updated_at` for a normalized
+entry; existing raw-item date ordering is unchanged.
+
+URLs use the applicable ancestor and element `xml:base` declarations, resolved
+against `source_url`. `fetch` supplies the final response URL after redirects;
+`normalized_entries(source_url: "https://example.com/feed.xml")` can override it
+for one call. Relative redirects are resolved against the current request URL.
+Without a usable base, relative values are preserved and reported in `issues`.
+Invalid URI syntax is likewise preserved with an issue. Identifiers are never
+resolved as URLs. Normalization performs no HTTP requests or article scraping.
+
+Content is not sanitized, and HTML is never implicitly stripped into plain text.
+XML entities are decoded once outside CDATA; CDATA content is retained literally.
+Atom XHTML drops its enclosing XHTML `div` and removes XHTML namespace prefixes
+from element names, preserving the original in `raw_xml`. `content_base_url`
+provides the effective base for the selected HTML content (or plain text when
+HTML is absent); links inside content are not rewritten. External Atom content
+is exposed as `content_url` without fetching it. Unsupported content types remain
+in raw data with an issue. Render HTML only through your application's usual
+sanitization policy.
+
+`category_details` preserves duplicate category records, labels, schemes/domains,
+and their raw attributes/content even when `categories` removes repeated terms.
+`links` preserves all entry link records with resolved `url`, `rel`, `media_type`,
+and raw metadata. Each attachment includes `source` and `raw`; invalid numeric
+values stay there and produce a `nil` normalized number plus an issue, rather
+than becoming zero. An item-level iTunes duration applies only when there is one
+attachment; its original element is then available as `raw_duration`.
+
+Custom content and keyword rules belong to an individual normalization call:
+
+```ruby
+entries = feed.normalized_entries(mappings: {
+  content_html: "full-text",
+  content_text: "{urn:example:content}plain",
+  categories: [
+    { tag: "dc:subject", separator: ";" },
+    { tag: "media:keywords", separator: "," }
+  ]
+})
+```
+
+Content mappings select the first nonempty direct element and take precedence
+over the defaults for that representation. A selector is an exact XML qualified
+name or `{namespace-uri}local-name`, not XPath. Hyphenated names such as
+`full-text` need no generated accessor or global tag registration. Category
+mappings override the selected element's default term extraction; a separator
+is literal and optional. Unmapped subject/keyword strings are never guessed to
+be comma- or semicolon-delimited. Unknown mapping keys and malformed mapping
+options raise `ArgumentError`.
+
+For migration, replace format-specific expressions such as
+`item[:link_alternate] || item[:link]` with `entry.url`, while retaining
+`entry.raw` for existing custom fields. The runnable [digest example](examples/digest.rb)
+reads either format without testing which one it received:
+
+```bash
+ruby -Ilib examples/digest.rb test/data/normalized_rss.xml
+ruby -Ilib examples/digest.rb test/data/normalized_atom.xml
+```
+
+The mapping follows the [Atom specification](https://www.rfc-editor.org/rfc/rfc4287.html),
+[RSS specification](https://www.rssboard.org/rss-specification), and
+[XML Base rules](https://www.w3.org/TR/xmlbase/). It is a tolerant extraction view,
+not a standards validator. JSON Feed parsing is tracked separately in
+[#60](https://github.com/cardmagic/simple-rss/issues/60).
+
 ### JSON Serialization
 
 ```ruby

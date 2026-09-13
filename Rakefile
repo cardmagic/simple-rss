@@ -14,7 +14,7 @@ RUBY_FORGE_USER = ENV["RUBY_FORGE_USER"] || "cardmagic"
 RELEASE_NAME = "#{PKG_NAME}-#{PKG_VERSION}".freeze
 
 PKG_FILES = FileList[
-    "lib/*", "bin/*", "test/**/*", "[A-Z]*", "Rakefile", "html/**/*"
+    "lib/**/*", "bin/*", "examples/**/*", "test/**/*", "[A-Z]*", "Rakefile", "html/**/*"
 ]
 
 desc "Default Task"
