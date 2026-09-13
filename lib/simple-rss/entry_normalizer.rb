@@ -268,7 +268,11 @@ class SimpleRSS::EntryNormalizer
 
   # @rbs () -> void
   def read_attachments
-    elements = @children.flat_map { |element| element.matches?("group", MEDIA) ? element.children : [element] }
+    elements = @children.flat_map do |element|
+      next [element] unless element.matches?("group", MEDIA)
+
+      element.children.select { |child| child.matches?("content", MEDIA) }
+    end
     attachments = elements.filter_map do |element|
       attributes = element.attributes
       if element.matches?("content", MEDIA)
@@ -280,7 +284,7 @@ class SimpleRSS::EntryNormalizer
       end
     end
     duration = extension_elements("duration", ITUNES).first
-    if attachments.size == 1 && duration && attachments.first[:duration_in_seconds].nil?
+    if attachments.size == 1 && duration && !attachments.first[:raw][:attributes].key?("duration")
       attachments.first[:duration_in_seconds] = duration_seconds(duration.text, duration)
       attachments.first[:raw_duration] = duration.raw
     end

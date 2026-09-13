@@ -367,6 +367,27 @@ class NormalizedEntriesTest < Test::Unit::TestCase
     assert_equal "https://example.com/article", entry.url
   end
 
+  def test_media_groups_only_contribute_media_content_attachments
+    entry = rss_entry(<<~XML)
+      <media:group>
+        <enclosure url="https://wrong.example.com/nested-rss"/>
+        <link xmlns="http://www.w3.org/2005/Atom" rel="enclosure" href="https://wrong.example.com/nested-atom"/>
+        <media:content url="https://example.com/video" type="video/mp4"/>
+      </media:group>
+    XML
+    assert_equal(["https://example.com/video"], entry.attachments.map { |attachment| attachment[:url] })
+  end
+
+  def test_invalid_attachment_duration_is_not_replaced_by_an_item_level_duration
+    entry = rss_entry(<<~XML)
+      <media:content url="https://example.com/video" duration="unknown"/>
+      <itunes:duration>42</itunes:duration>
+    XML
+    assert_nil entry.attachments.first[:duration_in_seconds]
+    assert_equal "unknown", entry.attachments.first[:raw][:attributes]["duration"]
+    assert_equal :invalid_number, entry.issues.first[:code]
+  end
+
   private
 
   def fixture(format)
