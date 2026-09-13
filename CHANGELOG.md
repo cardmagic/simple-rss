@@ -7,6 +7,12 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ## Unreleased
 
+- Parse Atom 1.0 category terms from attributes, so scalar category access and
+  `array_tags: [:category]` work with `items_by_category`. Preserve source order
+  and duplicates, skip missing or blank terms, and resolve namespace declarations
+  within the current entry. Exclude categories in embedded content and source
+  metadata while preserving RSS category text and CDATA behavior.
+  ([#56](https://github.com/cardmagic/simple-rss/issues/56))
 - Use the first valid `pubDate`, `updated`, or `published` timestamp in
   `latest`, `items_since`, and merge ordering. Malformed dates no longer make
   `latest` raise or hide a valid fallback. Preserve the original field values,

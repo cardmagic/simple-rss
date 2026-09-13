@@ -263,6 +263,26 @@ feed = SimpleRSS.parse(xml, array_tags: [:category])
 item.category  # => ["tech", "programming", "ruby"]
 ```
 
+RSS categories use element text, including CDATA: `<category>ruby</category>`.
+Atom 1.0 categories use the `term` attribute:
+
+```xml
+<category term="ruby" label="Ruby Language" scheme="https://example.com/topics"/>
+<category term="rails"/>
+```
+
+With `array_tags: [:category]`, those Atom categories become `["ruby", "rails"]`
+in source order, preserving duplicates. Scalar mode returns the first usable
+term. Both modes work with `feed.items_by_category("ruby")`. Missing or blank
+Atom terms are skipped; labels and element content do not supply a fallback.
+The original `label` and `scheme` attributes remain in `feed.source` for callers
+that need the source metadata.
+
+Category extraction uses direct children of each entry or item and resolves
+default and prefixed namespace declarations on the feed, entry, and category.
+Categories inside content or source metadata are excluded. RSS categories keep
+their existing scalar/array and CDATA behavior.
+
 ## API Reference
 
 ### `SimpleRSS.parse(source, options = {})`
