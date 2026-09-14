@@ -25,6 +25,8 @@ class SimpleRSS::Discovery
 
   # @rbs (String) -> Array[Hash[Symbol, untyped]]
   def discover(url)
+    url = "https:#{url}" if url.start_with?("//")
+    url = "https://#{url}" unless url.match?(/\A[a-z][a-z\d+.-]*:/i)
     response, uri = SimpleRSS::HTTPClient.new(@options).get(url)
     raise SimpleRSS::HTTPError, response.code.to_i unless response.is_a?(Net::HTTPSuccess)
 

@@ -10,6 +10,7 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 - Add `SimpleRSS.discover` for advertised RSS, Atom, and JSON Feed links, using
   optional Nokogiri HTML5 parsing. Return ordered, deduplicated candidates with
   titles, type hints, and verification status; recognize direct empty feeds.
+  Default bare domains and protocol-relative discovery inputs to HTTPS.
   Apply destination checks, address pinning, redirect credential stripping,
   total HTTP timeouts, and streamed wire/decompressed-body limits. Existing
   `fetch` callers can opt into the shared bounded transport with `network_policy`;

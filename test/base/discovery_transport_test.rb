@@ -22,13 +22,14 @@ class DiscoveryTransportTest < Test::Unit::TestCase
     with_replaced_method(TCPSocket, :open, ->(*) { flunk "Prohibited address reached the socket" }) do
       prohibited.each do |host|
         assert_raise(SimpleRSS::PolicyError, host) { SimpleRSS.discover("http://#{host}/", timeout: 1) }
+        assert_raise(SimpleRSS::PolicyError, host) { SimpleRSS.discover(host, timeout: 1) }
       end
     end
   end
 
   def test_malformed_urls_and_schemes_fail_before_connecting
     with_replaced_method(TCPSocket, :open, ->(*) { flunk "Invalid URL reached the socket" }) do
-      ["example.com", "/relative", "ftp://example.com/feed", "file:///tmp/feed", "http://", "http://[broken", "http://example.com:0", "http://example.com:65536", "https://user:password@example.com/"].each do |url|
+      ["", "/relative", "ftp://example.com/feed", "file:///tmp/feed", "mailto:reader@example.com", "javascript:alert(1)", "http://", "http://[broken", "http://example.com:0", "http://example.com:65536", "https://user:password@example.com/", "user:password@example.com"].each do |url|
         assert_raise(SimpleRSS::PolicyError, url) { SimpleRSS.discover(url) }
       end
     end
@@ -284,7 +285,7 @@ class DiscoveryTransportTest < Test::Unit::TestCase
     ssl_server = OpenSSL::SSL::SSLServer.new(server, context)
     requests = []
     worker = Thread.new do
-      2.times do
+      5.times do
         client = nil
         begin
           client = ssl_server.accept
@@ -312,13 +313,16 @@ class DiscoveryTransportTest < Test::Unit::TestCase
     with_replaced_method(Net::HTTP, :new, replacement) do
       with_pinned_connection("http://127.0.0.1:#{server.addr[1]}", ->(_host) { ["8.8.8.8"] }) do |connections|
         assert_empty SimpleRSS.discover("https://site.example/", timeout: 1)
+        assert_empty SimpleRSS.discover("site.example", timeout: 1)
+        assert_empty SimpleRSS.discover("site.example/blog?edition=1#entries", timeout: 1)
+        assert_empty SimpleRSS.discover("//site.example/blog", timeout: 1)
         error = assert_raise(SimpleRSS::RequestError) { SimpleRSS.discover("https://wrong.example/", timeout: 1) }
         assert_kind_of OpenSSL::SSL::SSLError, error.cause
-        assert_equal [["8.8.8.8", 443], ["8.8.8.8", 443]], connections
+        assert_equal Array.new(5) { ["8.8.8.8", 443] }, connections
       end
     end
     worker.value
-    assert_equal 1, requests.size
+    assert_equal ["GET / HTTP/1.1", "GET / HTTP/1.1", "GET /blog?edition=1 HTTP/1.1", "GET /blog HTTP/1.1"], requests.map(&:first)
     assert_include requests.first, "Host: site.example"
   ensure
     worker&.kill

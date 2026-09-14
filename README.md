@@ -111,6 +111,12 @@ gem "nokogiri", ">= 1.16", "< 2"
 `discover` uses Nokogiri's HTML5 parser, which requires CRuby. Missing HTML5
 support raises `SimpleRSS::DiscoveryDependencyError` before making a request.
 
+Bare domains and paths default to HTTPS: `SimpleRSS.discover("example.com/blog")`
+requests `https://example.com/blog`. Protocol-relative inputs such as
+`//example.com/blog` also use HTTPS. Explicit HTTP/HTTPS URLs are preserved;
+other schemes remain unsupported. Include the scheme when specifying a port.
+Discovery does not retry over HTTP if HTTPS fails.
+
 ```ruby
 require "simple-rss"
 
