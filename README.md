@@ -16,7 +16,22 @@ A simple, flexible, extensible, and liberal RSS, Atom, and JSON Feed reader for 
 - Extensible tag definitions
 - No mandatory runtime gem dependencies; website discovery uses optional Nokogiri
 
-## What's New in 2.x
+## What's New in 2.3.0
+
+- **Website discovery** - Find advertised RSS, Atom, and JSON feeds with
+  `SimpleRSS.discover("example.com")`. Bare domains default to HTTPS, and
+  requests have destination checks, timeouts, and size limits. Existing `fetch`
+  callers can opt into these request controls with `network_policy`.
+- **Normalized entries** - Use `normalized_entries` for consistent URLs, dates,
+  content, authors, categories, and attachments while retaining raw feed data.
+- **JSON Feed** - Parse JSON Feed 1.0 and 1.1 through the existing `parse` and
+  `fetch` APIs, with the same normalized entry interface as RSS and Atom.
+- **Parser fixes** - Correct Atom category terms and relation links, handle
+  malformed dates during ordering, and accept self-closing empty feeds.
+
+See the [2.3.0 release notes](CHANGELOG.md#230) for compatibility details.
+
+## Earlier 2.x Features
 
 See the [changelog](CHANGELOG.md) for release history and unreleased changes.
 

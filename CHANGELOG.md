@@ -7,6 +7,8 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ## Unreleased
 
+### 2.3.0
+
 - Add `SimpleRSS.discover` for advertised RSS, Atom, and JSON Feed links, using
   optional Nokogiri HTML5 parsing. Return ordered, deduplicated candidates with
   titles, type hints, and verification status; recognize direct empty feeds.

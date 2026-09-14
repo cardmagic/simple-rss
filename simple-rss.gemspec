@@ -1,12 +1,11 @@
 Gem::Specification.new do |s|
   s.name = "simple-rss"
-  s.version = "2.2.0"
-  s.date = "2025-12-28"
-  s.summary = "A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. It is designed to be backwards compatible with the standard RSS parser, but will never do RSS generation."
+  s.version = "2.3.0"
+  s.summary = "A flexible RSS, Atom, and JSON Feed reader for Ruby."
   s.email = "lucas@rufy.com"
   s.homepage = "https://github.com/cardmagic/simple-rss"
   s.metadata["changelog_uri"] = "https://github.com/cardmagic/simple-rss/blob/master/CHANGELOG.md"
-  s.description = "A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. It is designed to be backwards compatible with the standard RSS parser, but will never do RSS generation."
+  s.description = "Parse RSS, Atom, and JSON Feed with normalized entries, HTTP fetching, website feed discovery, and JSON/XML serialization."
   s.authors = ["Lucas Carlson"]
   s.files = Dir["lib/**/*", "examples/**/*", "test/**/*", "LICENSE", "README.md", "CHANGELOG.md", "Rakefile", "simple-rss.gemspec"]
   s.required_ruby_version = ">= 3.1"
