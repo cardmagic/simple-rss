@@ -7,7 +7,7 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ## Unreleased
 
-### 2.3.0
+## 2.3.0 - 2026-09-14
 
 - Reject non-string discovery inputs with `PolicyError` instead of
   `NoMethodError` during HTTPS normalization.

@@ -29,7 +29,7 @@ A simple, flexible, extensible, and liberal RSS, Atom, and JSON Feed reader for 
 - **Parser fixes** - Correct Atom category terms and relation links, handle
   malformed dates during ordering, and accept self-closing empty feeds.
 
-See the [2.3.0 release notes](CHANGELOG.md#230) for compatibility details.
+See the [2.3.0 release notes](CHANGELOG.md#230---2026-09-14) for compatibility details.
 
 ## Earlier 2.x Features
 
