@@ -4,11 +4,11 @@
 [![CI](https://github.com/cardmagic/simple-rss/actions/workflows/ruby.yml/badge.svg)](https://github.com/cardmagic/simple-rss/actions/workflows/ruby.yml)
 [![License: LGPL](https://img.shields.io/badge/License-LGPL-blue.svg)](https://opensource.org/licenses/LGPL-3.0)
 
-A simple, flexible, extensible, and liberal RSS and Atom reader for Ruby. Designed to be backwards compatible with Ruby's standard RSS parser while handling malformed feeds gracefully.
+A simple, flexible, extensible, and liberal RSS, Atom, and JSON Feed reader for Ruby. Designed to be backwards compatible with Ruby's standard RSS parser while handling malformed feeds gracefully.
 
 ## Features
 
-- Parses both RSS and Atom feeds
+- Parses RSS, Atom, and JSON Feed 1.0/1.1
 - Tolerant of malformed XML (regex-based parsing)
 - Built-in URL fetching with conditional GET support (ETags, Last-Modified)
 - JSON and XML serialization
@@ -27,7 +27,7 @@ The 2.x releases add:
 
 - **JSON Serialization** - Export feeds with `to_json`, `to_hash`, and Rails-compatible `as_json`. Time objects serialize to ISO 8601.
 
-- **XML Serialization** - Convert any parsed feed to clean RSS 2.0 or Atom XML with `to_xml(format: :rss2)` or `to_xml(format: :atom)`.
+- **XML Serialization** - Convert parsed XML feeds to clean RSS 2.0 or Atom XML with `to_xml(format: :rss2)` or `to_xml(format: :atom)`.
 
 - **Array Tags** - Collect all occurrences of a tag (like multiple categories) with the `array_tags:` option.
 
@@ -178,7 +178,7 @@ order, regardless of their dates.
 
 ### Normalized Entries
 
-Use `normalized_entries` when an importer or digest should handle RSS and Atom
+Use `normalized_entries` when an importer or digest should handle RSS, Atom, and JSON Feed
 through the same fields:
 
 ```ruby
@@ -283,18 +283,134 @@ options raise `ArgumentError`.
 For migration, replace format-specific expressions such as
 `item[:link_alternate] || item[:link]` with `entry.url`, while retaining
 `entry.raw` for existing custom fields. The runnable [digest example](examples/digest.rb)
-reads either format without testing which one it received:
+reads all three formats without testing which one it received:
 
 ```bash
 ruby -Ilib examples/digest.rb test/data/normalized_rss.xml
 ruby -Ilib examples/digest.rb test/data/normalized_atom.xml
+ruby -Ilib examples/digest.rb test/data/json_feed_1_1.json
 ```
 
 The mapping follows the [Atom specification](https://www.rfc-editor.org/rfc/rfc4287.html),
 [RSS specification](https://www.rssboard.org/rss-specification), and
 [XML Base rules](https://www.w3.org/TR/xmlbase/). It is a tolerant extraction view,
-not a standards validator. JSON Feed parsing is tracked separately in
-[#60](https://github.com/cardmagic/simple-rss/issues/60).
+not a standards validator. JSON Feed has the separate rules below.
+
+### JSON Feed Parsing
+
+JSON Feed 1.0 and 1.1 use the same `parse`, IO, and `fetch` entry points:
+
+```ruby
+require "simple-rss"
+require "json"
+
+source = JSON.generate(
+  version: "https://jsonfeed.org/version/1.1",
+  title: "Example",
+  authors: [{ name: "Example Editor" }],
+  items: [{
+    id: "post:42",
+    url: "https://example.com/posts/42",
+    content_text: "Hello from JSON Feed",
+    date_published: "2026-09-12T10:00:00Z",
+    tags: ["ruby", "feeds"]
+  }]
+)
+feed = SimpleRSS.parse(source)
+entry = feed.normalized_entries.first
+
+feed.feed_type        # => :json_feed
+entry.identifier      # => "post:42"
+entry.content_text    # => "Hello from JSON Feed"
+entry.authors.first[:name] # => "Example Editor" (inherited)
+entry.categories      # => ["ruby", "feeds"]
+entry.published_at    # => a Time
+entry.raw["id"]       # => "post:42"
+
+feed = SimpleRSS.fetch("https://example.com/feed.json", timeout: 10)
+feed.next_url         # Pagination metadata only; never fetched automatically
+feed.raw_json         # Frozen original JSON document, including extensions
+```
+
+`fetch` detects the response body independently of Content-Type and sends an
+Accept header covering all three formats. Custom headers can override Accept.
+ETag, Last-Modified, redirects, and `nil` for HTTP 304 work as for XML feeds.
+
+| Normalized field | JSON Feed mapping |
+| --- | --- |
+| `identifier` | `id`, preserved as an opaque string; numeric IDs become strings |
+| `url`, `external_url` | Separate permalink and linkblog destination; no ID fallback |
+| `published_at`, `updated_at` | `date_published`, `date_modified`, parsed separately as RFC 3339 |
+| `content_html`, `content_text` | Corresponding fields, without decoding HTML entities or deriving one from the other |
+| `summary`, `summary_type` | Plain text `summary`, with type `:text` |
+| `image`, `banner_image` | Corresponding image URLs |
+| `categories`, `category_details` | Nonblank `tags`, trimmed and deduplicated for categories; duplicate details retained |
+| `authors` | Item authors, otherwise feed authors; includes `name`, `url`, `avatar`, and raw metadata |
+| `language` | 1.1 item language, otherwise feed language |
+| `attachments` | All attachments with URL, MIME type as `media_type`, title, size, duration, and raw metadata |
+
+In 1.0, authors come from singular `author`. In 1.1, `authors` takes precedence
+over deprecated `author` within the same object; an item's authors take
+precedence over the feed's. An explicit empty `authors` array prevents
+inheritance. The later `authors` and `language` fields are retained as raw data
+but not normalized in a 1.0 document. Matching attachment titles preserve the
+publisher's grouping of alternate formats. `external_url`, `image`,
+`banner_image`, and `language` are additive normalized fields; XML entries
+currently return `nil` for these fields.
+
+Relative JSON URLs resolve against the supplied/fetched `source_url`, or the
+JSON `feed_url` when no source URL is supplied. Per-call `source_url` overrides
+still work. Missing bases and invalid URLs remain inspectable through `issues`
+and raw data, using the same issue codes as XML. `content_base_url` is the item
+URL when available, otherwise the source URL or feed URL. Content links are not
+rewritten; no articles, attachments, hubs, or pagination URLs are fetched.
+
+Parsing requires a supported version, string feed title, an items array, and
+objects with nonblank string/numeric IDs and at least one string content field.
+Titleless items and empty feeds are supported. Malformed JSON, missing required
+fields, malformed author/tag/attachment structures, and wrong known field types
+raise `SimpleRSSError` with a field path. When supplied, `expired` must be a
+JSON boolean; strings such as `"false"` are rejected. Invalid required item data rejects the
+whole feed; items are never assigned invented IDs or returned partially parsed.
+Invalid optional dates and attachment numbers are preserved in raw data and
+reported in `issues`, with `nil` normalized values. Dates are never substituted
+with the current time. `effective_at`, `latest`, and `items_since` safely use a
+valid modification date when publication is invalid or absent.
+
+UTF-8 strings and readable IO accept ordinary leading JSON whitespace and one
+UTF-8 BOM at the very start, before whitespace. Embedded or repeated BOMs are
+rejected. `source` preserves the original input. This is a parser, not a complete
+standards validator: it does not validate URL reachability, language tags, ID
+uniqueness across updates, or publisher extension schemas.
+`SimpleRSS.valid?(source)` reports parseability. A parsed JSON feed's instance
+`valid?` is true, including an empty feed. XML retains its historical distinction:
+the class method accepts parseable empty feeds, but instance `valid?` requires
+items and a title or link.
+
+For JSON feeds, `raw_json` is an immutable snapshot of the entire decoded
+document with string keys. Each normalized entry's `raw` is its original JSON
+item, also with string keys; `raw_xml` is `nil`. Original numeric IDs, date
+strings, nested data, and unknown fields remain intact. Normalized entries are
+immutable snapshots based on the original JSON, so edits to `items` do not
+rewrite their normalized fields. Reordering or deduplication retains the source
+association; inserting an unrelated item raises an error during normalization.
+
+`items` remains an array of hashes with symbol keys and dot access. It retains
+JSON fields and adds compatibility aliases: string `id`/`guid`, `link`,
+`description`, `content`, category arrays, publication/update dates, and the first
+attachment's enclosure metadata. Nested original JSON values are frozen.
+XML-only tag configuration and `array_tags` do not affect JSON; passing XML
+`mappings` to JSON normalization raises `ArgumentError`.
+
+`as_json`, `to_hash`, and `to_json` export that Ruby object view: original feed
+metadata plus compatibility fields and the current items, with times converted
+to ISO 8601. These operations preserve extensions but are **not JSON Feed
+exporters**. Use `raw_json` to inspect the original document. XML serialization
+behavior is unchanged; calling `to_xml` on a JSON feed raises `SimpleRSSError`
+until a separate conversion contract exists.
+
+These mappings follow the [JSON Feed 1.0 specification](https://www.jsonfeed.org/version/1/)
+and [JSON Feed 1.1 specification](https://www.jsonfeed.org/version/1.1/).
 
 ### JSON Serialization
 
@@ -315,7 +431,7 @@ feed.as_json
 
 ### XML Serialization
 
-Convert parsed feeds to standard RSS 2.0 or Atom format:
+Convert parsed XML feeds to standard RSS 2.0 or Atom format:
 
 ```ruby
 feed = SimpleRSS.parse(xml)

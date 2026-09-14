@@ -23,7 +23,10 @@ with malformed feeds. `lib/simple-rss/xml_element.rb` holds shared XML tokenizat
 and scoped element metadata. The optional normalized view lives in
 `entry_normalizer.rb` and the format-independent `normalized_entry.rb` value object
 under `lib/simple-rss/`. Preserve the existing raw parser and serialization
-contracts when extending normalization.
+contracts when extending normalization. `json_feed.rb` validates JSON Feed
+structure and preserves the original document; `json_entry_normalizer.rb` maps
+JSON fields into the same immutable entry type. Keep format-specific extraction
+separate and use the existing JSON standard library dependency.
 
 **Tag Syntax** (extend via `SimpleRSS.item_tags <<`):
 - `tag` - simple element extraction

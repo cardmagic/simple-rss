@@ -1,0 +1,78 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Example",
+  "description": "A feed of examples",
+  "home_page_url": "https://example.com/",
+  "feed_url": "https://example.com/feed.json",
+  "icon": "https://example.com/icon.png",
+  "favicon": "https://example.com/favicon.png",
+  "language": "en",
+  "expired": true,
+  "next_url": "https://example.com/older.json",
+  "user_comment": "Subscribe with a feed reader.",
+  "hubs": [
+    {
+      "type": "WebSub",
+      "url": "https://example.com/hub"
+    }
+  ],
+  "authors": [
+    {
+      "name": "Example Editor",
+      "url": "https://example.com/editor",
+      "avatar": "https://example.com/avatar.png",
+      "_profile": {
+        "role": "editor"
+      }
+    }
+  ],
+  "_publisher": {
+    "enabled": true,
+    "sequence": [
+      1,
+      2
+    ]
+  },
+  "items": [
+    {
+      "id": "opaque:%2F:001",
+      "title": "Ruby & feeds",
+      "url": "https://example.com/blog/article?one=1&two=2",
+      "external_url": "https://example.org/original",
+      "content_html": "<p>Full &amp; complete.</p>",
+      "content_text": "Full & complete.",
+      "summary": "A summary.",
+      "date_published": "2026-09-12T10:00:00Z",
+      "date_modified": "2026-09-13T11:00:00Z",
+      "image": "https://example.com/image.png",
+      "banner_image": "https://example.com/banner.png",
+      "tags": [
+        "ruby",
+        "feeds",
+        "ruby",
+        " "
+      ],
+      "attachments": [
+        {
+          "url": "https://example.com/audio/one.mp3",
+          "mime_type": "audio/mpeg",
+          "title": "Episode",
+          "size_in_bytes": 1234,
+          "duration_in_seconds": 62.5,
+          "_codec": {
+            "lossless": false
+          }
+        },
+        {
+          "url": "https://example.com/images/two.png",
+          "mime_type": "image/png",
+          "title": "Cover",
+          "size_in_bytes": 4321
+        }
+      ],
+      "_extension": {
+        "value": "original"
+      }
+    }
+  ]
+}

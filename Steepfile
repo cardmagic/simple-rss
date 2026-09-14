@@ -5,6 +5,7 @@ target :lib do
   check "lib"
 
   library "time"
+  library "date"
   library "cgi"
   library "json"
   library "uri"
