@@ -10,4 +10,9 @@ target :lib do
   library "json"
   library "uri"
   library "net-http"
+  library "ipaddr"
+  library "resolv"
+  library "timeout"
+  library "zlib"
+  library "openssl"
 end

@@ -7,6 +7,18 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ## Unreleased
 
+- Add `SimpleRSS.discover` for advertised RSS, Atom, and JSON Feed links, using
+  optional Nokogiri HTML5 parsing. Return ordered, deduplicated candidates with
+  titles, type hints, and verification status; recognize direct empty feeds.
+  Default bare domains and protocol-relative discovery inputs to HTTPS.
+  Apply destination checks, address pinning, redirect credential stripping,
+  total HTTP timeouts, and streamed wire/decompressed-body limits. Existing
+  `fetch` callers can opt into the shared bounded transport with `network_policy`;
+  ordinary fetching retains its behavior. Include a tested Feedbag alternative.
+  ([#61](https://github.com/cardmagic/simple-rss/issues/61))
+- Accept self-closing empty RSS channels and Atom feeds in `parse` and `fetch`,
+  allowing direct-feed discovery to recognize them without requiring items.
+
 - Parse JSON Feed 1.0 and 1.1 through `parse` and `fetch`, using the same
   normalized entry interface as RSS/Atom. Support titleless and empty feeds,
   inherited authors, opaque/numeric IDs, separate content and dates, tags, and

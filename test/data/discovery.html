@@ -1,0 +1,28 @@
+<!doctype html>
+<HTML>
+<HEAD>
+  <meta charset=utf-8>
+  <base HREF='../syndication/'>
+  <link title='News &amp; updates' href='news.xml?edition=1&amp;lang=en#items' TYPE='Application/RSS+XML; charset=UTF-8' REL='ALTERNATE'>
+  <LINK REL="alternate feed" TYPE=application/atom+xml HREF="atom.xml" title="Atom">
+  <link rel=alternate type=application/feed+json href=feed.json title='JSON Feed'>
+  <link rel=alternate type=application/json href=legacy.json />
+  <link rel=alternate type=application/rdf+xml href=feed.rdf>
+  <link rel=alternate type=application/rss+xml href='news.xml?edition=1&amp;lang=en#duplicate' title='Duplicate'>
+  <link rel=alternate type=application/rss+xml href='news.xml?edition=2&amp;lang=en'>
+  <base href='https://ignored.example.com/'>
+  <link rel=stylesheet type=application/rss+xml href=wrong.xml>
+  <link rel=alternate type=text/css href=wrong.css>
+  <link rel=alternate type=application/rss+xml>
+  <!-- <link rel=alternate type=application/rss+xml href=comment.xml> -->
+  <script>var html = '<link rel=alternate type=application/rss+xml href=script.xml>';</script>
+  <style>.example::before { content: '<link rel=alternate type=application/rss+xml href=style.xml>'; }</style>
+  <template><base href='https://wrong.example.com/'><link rel=alternate type=application/rss+xml href=template.xml></template>
+  <noscript><link rel=alternate type=application/rss+xml href=noscript.xml></noscript>
+</HEAD>
+<BODY>
+  <article><link rel=alternate type=application/rss+xml href=body.xml></article>
+  <p>&lt;link rel=alternate type=application/rss+xml href=text.xml&gt;</p>
+  <a href=guessed-feed.xml>Feed</a>
+</BODY>
+</HTML>

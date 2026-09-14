@@ -11,9 +11,10 @@ A simple, flexible, extensible, and liberal RSS, Atom, and JSON Feed reader for 
 - Parses RSS, Atom, and JSON Feed 1.0/1.1
 - Tolerant of malformed XML (regex-based parsing)
 - Built-in URL fetching with conditional GET support (ETags, Last-Modified)
+- Explicit website feed discovery with request limits and destination policies
 - JSON and XML serialization
 - Extensible tag definitions
-- Zero runtime dependencies
+- No mandatory runtime gem dependencies; website discovery uses optional Nokogiri
 
 ## What's New in 2.x
 
@@ -96,6 +97,189 @@ feed = SimpleRSS.fetch(
 )
 # Returns nil if feed hasn't changed (304 Not Modified)
 ```
+
+### Discovering Feeds from a Website
+
+Add Nokogiri to applications that use discovery. Parsing and ordinary fetching
+work without it:
+
+```ruby
+gem "simple-rss"
+gem "nokogiri", ">= 1.16", "< 2"
+```
+
+`discover` uses Nokogiri's HTML5 parser, which requires CRuby. Missing HTML5
+support raises `SimpleRSS::DiscoveryDependencyError` before making a request.
+
+Bare domains and paths default to HTTPS: `SimpleRSS.discover("example.com/blog")`
+requests `https://example.com/blog`. Protocol-relative inputs such as
+`//example.com/blog` also use HTTPS. Explicit HTTP/HTTPS URLs are preserved;
+other schemes remain unsupported. Include the scheme when specifying a port.
+Discovery does not retry over HTTP if HTTPS fails.
+
+```ruby
+require "simple-rss"
+
+candidates = SimpleRSS.discover("https://example.com/blog")
+# => [{ url: "https://example.com/feed.xml", title: "News",
+#       format: :rss, media_type: "application/rss+xml",
+#       source: :html_link, verified: false }, ...]
+
+candidate = candidates.first
+if candidate
+  feed = SimpleRSS.fetch(candidate.fetch(:url), network_policy: :public)
+  feed.normalized_entries.each { |entry| puts entry.title || entry.identifier }
+else
+  puts "No advertised feeds found."
+end
+```
+
+The application chooses among candidates. HTML results follow document order;
+duplicate normalized URLs keep the first record. Fragments are removed, queries
+are preserved, and relative/protocol-relative references use the final response
+URL plus the first direct `head` base URL, when usable. Malformed, credentialed,
+and non-HTTP link URLs are ignored. An invalid first base falls back to the
+response URL; later base tags do not override it.
+
+Only direct `head` links with an `alternate` relation token and a supported
+media type are considered. Names, relation tokens, and media types are
+case-insensitive; quoted/unquoted attributes and HTML entities follow HTML5
+parsing. Supported types are `application/rss+xml`, `application/rdf+xml`,
+`application/atom+xml`, `application/feed+json`, and `application/json`.
+Scripts, comments, styles, templates, noscript content, and body links are
+excluded. HTML parsing limits tree depth and attributes per element to 128.
+
+| Candidate field | Meaning |
+| --- | --- |
+| `url` | Absolute HTTP/HTTPS URL, without a fragment |
+| `title` | Advertised title or parsed feed title; may be nil |
+| `format` | `:rss`, `:atom`, or `:json_feed` |
+| `media_type` | Advertised supported type, or canonical type for a direct feed |
+| `source` | `:html_link` for an advertisement, `:document` for a direct feed |
+| `verified` | Whether this response was successfully parsed as a recognized feed |
+
+An advertised type is a hint, and advertised destinations are not resolved or
+fetched. They may be unreachable or prohibited by the application's policy.
+Use the same network policy when fetching the chosen URL. A direct RSS, Atom,
+or JSON Feed response returns one verified candidate at its final URL, even
+when empty. Verification means SimpleRSS parsed it, not that it passed a full
+standards validator. RSS/Atom root recognition and JSON structure take
+precedence over server Content-Type. Empty self-closing RSS channels and Atom
+feeds are also parseable.
+
+Discovery makes one request plus permitted redirects. It never guesses paths,
+executes scripts, fetches candidate feeds, follows pagination, or crawls links.
+The [discovery example](examples/discover.rb) prints every candidate:
+
+```bash
+ruby -Ilib examples/discover.rb https://example.com/blog
+```
+
+#### Request limits and destination policy
+
+Discovery defaults to a 10-second total HTTP/DNS budget, at most five redirects,
+and a 2 MiB body budget. The byte budget covers both transferred and decompressed
+body data, accumulated across the redirect chain. Streaming stops when either
+budget is exceeded. Gzip and zlib-wrapped deflate are supported as single streams;
+truncated streams, trailing compressed data, unsupported content encodings, and
+partial responses fail explicitly. The time budget includes connection, TLS,
+response reads, DNS resolution, and redirects; HTML/feed parsing follows the
+bounded download.
+
+```ruby
+candidates = SimpleRSS.discover(
+  "https://example.com/blog",
+  timeout: 5,
+  max_bytes: 1_048_576,
+  max_redirects: 3,
+  headers: { "User-Agent" => "Example Feed Reader", "Accept-Language" => "en" }
+)
+```
+
+The default `network_policy: :public` checks every resolved address at every
+hop and pins an approved address for the actual connection. Mixed public/private
+DNS answers are rejected. TLS still verifies the original hostname; environment
+proxies are disabled for policy-controlled requests. The conservative policy
+excludes IPv4 private, loopback, link-local, shared, documentation, benchmark,
+multicast, and reserved blocks. IPv6 permits global unicast `2000::/3`, excluding
+special-purpose, documentation, and 6to4 ranges. Mapped/translated addresses and
+other IPv6 ranges are excluded. See the
+[IANA IPv4](https://www.iana.org/assignments/iana-ipv4-special-registry/) and
+[IPv6 registries](https://www.iana.org/assignments/iana-ipv6-special-registry/).
+
+For an application-controlled internal feed, provide a policy that returns true
+for each permitted address:
+
+```ruby
+require "ipaddr"
+
+internal_policy = lambda do |uri, address|
+  uri.hostname == "feeds.internal.example" &&
+    IPAddr.new("10.20.0.0/24").include?(address)
+end
+candidates = SimpleRSS.discover("https://feeds.internal.example/",
+                                network_policy: internal_policy)
+```
+
+`network_policy: :unrestricted` deliberately allows any destination address while
+retaining URL checks, pinning, time/byte limits, TLS verification, and redirect
+rules. Keep this choice in application configuration. Policies receive a URI and
+an IPAddr; invalid policy names raise `ArgumentError`.
+
+On cross-origin redirects, custom headers are reduced to `Accept`,
+`Accept-Language`, and `User-Agent`. Authorization, cookies, custom credential
+headers, and conditional validators are removed and are not restored on a later
+redirect back. Same-origin redirects retain them. A changed scheme or port is a
+changed origin. URL credentials and unsupported destination schemes are rejected.
+`Host`, proxy/connection/framing headers, `Range`, and `Accept-Encoding` are
+transport-controlled and cannot be supplied in policy mode. `follow_redirects:
+false` reports the initial redirect as an HTTP error during discovery.
+
+Existing `fetch(url, options)` behavior is retained unless `network_policy` is
+explicitly supplied. Opting in uses the same transport and defaults as discovery,
+without requiring Nokogiri. `max_bytes` and `max_redirects` require a network
+policy. Ordinary `fetch` still expects a feed and never performs discovery.
+Parsing a supplied string or IO remains network-free.
+
+| Outcome | Result |
+| --- | --- |
+| Successful HTML page with no supported advertisements | `[]` |
+| Non-success HTTP status, including an unsolicited 304 | `SimpleRSS::HTTPError`, with `status_code` |
+| Rejected URL or destination | `SimpleRSS::PolicyError` |
+| Redirect loop or limit | `SimpleRSS::RedirectError` |
+| Timeout | `SimpleRSS::RequestTimeout` |
+| Body size limit | `SimpleRSS::ResponseTooLarge` |
+| DNS, connection, TLS, compression, or HTTP transport failure | `SimpleRSS::RequestError` |
+| Unrecognized or unparseable response, or HTML parser limit | `SimpleRSS::DiscoveryError` |
+| Missing optional parser | `SimpleRSS::DiscoveryDependencyError` |
+
+These errors inherit from `SimpleRSSError`. `fetch` retains its existing
+`SimpleRSSError` for non-success HTTP statuses and returns nil on conditional
+304 responses, including with an explicit network policy.
+
+#### Feedbag alternative
+
+Applications already using [Feedbag](https://github.com/damog/feedbag) can keep
+it for discovery and pass its results to SimpleRSS:
+
+```ruby
+require "feedbag"
+require "simple-rss"
+
+Feedbag.find("https://example.com/blog", open_timeout: 10, read_timeout: 10).each do |url|
+  feed = SimpleRSS.fetch(url, network_policy: :public)
+  puts feed.title
+end
+```
+
+Install the separate `feedbag` gem for this recipe; it is not a SimpleRSS runtime
+dependency. The [Feedbag example](examples/feedbag.rb) and integration test cover
+this workflow. Feedbag owns its discovery transport, URL heuristics, and error
+handling; SimpleRSS's network policy applies only to the subsequent `fetch`.
+The built-in API provides candidate metadata and explicit error/limit semantics
+for applications that need them. Its acceptance corpus is in
+[test/data/discovery.html](test/data/discovery.html), with discovery and transport
+cases under `test/base/`.
 
 ### Accessing Feed Data
 

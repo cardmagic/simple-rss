@@ -28,6 +28,13 @@ structure and preserves the original document; `json_entry_normalizer.rb` maps
 JSON fields into the same immutable entry type. Keep format-specific extraction
 separate and use the existing JSON standard library dependency.
 
+`http_client.rb` is shared by ordinary fetching and website discovery. Explicit
+network policies enable bounded requests; preserve legacy fetch defaults.
+`request_policy.rb` checks resolved addresses and pins the connection target.
+`discovery.rb` uses optional Nokogiri HTML5 parsing for head metadata. Keep core
+parsing usable without Nokogiri, and verify new transport behavior with local
+servers and controlled DNS/connection fixtures.
+
 **Tag Syntax** (extend via `SimpleRSS.item_tags <<`):
 - `tag` - simple element extraction
 - `tag#attr` - attribute value (e.g., `media:content#url` → `media_content_url`)
