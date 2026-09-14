@@ -1,13 +1,15 @@
 # rbs_inline: enabled
 
 class SimpleRSS::NormalizedEntry
+  attr_reader :external_url, :image, :banner_image, :language #: String?
   attr_reader :identifier, :url, :title #: String?
   attr_reader :published_at, :updated_at #: Time?
   attr_reader :content_html, :content_text, :content_url, :content_base_url, :summary #: String?
   attr_reader :summary_type #: Symbol?
   attr_reader :categories #: Array[String]
   attr_reader :category_details, :attachments, :links, :authors, :issues #: Array[Hash[Symbol, untyped]]
-  attr_reader :raw, :field_sources #: Hash[Symbol, untyped]
+  attr_reader :raw #: Hash[Symbol | String, untyped]
+  attr_reader :field_sources #: Hash[Symbol, untyped]
   attr_reader :raw_xml #: String?
 
   # @rbs (Hash[Symbol, untyped]) -> void
@@ -19,6 +21,10 @@ class SimpleRSS::NormalizedEntry
     empty_categories.freeze
     empty_records.freeze
     empty_data.freeze
+    @external_url = values[:external_url]
+    @image = values[:image]
+    @banner_image = values[:banner_image]
+    @language = values[:language]
     @identifier = values[:identifier]
     @url = values[:url]
     @title = values[:title]
@@ -50,6 +56,7 @@ class SimpleRSS::NormalizedEntry
   # @rbs () -> Hash[Symbol, untyped]
   def to_h
     {
+      external_url: external_url, image: image, banner_image: banner_image, language: language,
       identifier: identifier, url: url, title: title, published_at: published_at, updated_at: updated_at,
       content_html: content_html, content_text: content_text, content_url: content_url, content_base_url: content_base_url,
       summary: summary, summary_type: summary_type, categories: categories, category_details: category_details,

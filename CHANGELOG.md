@@ -7,6 +7,15 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ## Unreleased
 
+- Parse JSON Feed 1.0 and 1.1 through `parse` and `fetch`, using the same
+  normalized entry interface as RSS/Atom. Support titleless and empty feeds,
+  inherited authors, opaque/numeric IDs, separate content and dates, tags, and
+  multiple attachments. Preserve original metadata and extensions in `raw_json`
+  and normalized entry `raw`; report recoverable date/number issues. Keep XML
+  serialization unchanged and reject JSON-to-XML conversion explicitly.
+  Fetch detects JSON regardless of Content-Type and retains conditional GET.
+  ([#60](https://github.com/cardmagic/simple-rss/issues/60))
+
 - Add `normalized_entries`, an optional immutable RSS/Atom view with consistent
   article URLs, separate publication/update dates, typed content and summaries,
   category terms, authors, and associated attachment metadata. Preserve raw

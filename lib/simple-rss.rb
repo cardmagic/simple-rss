@@ -15,6 +15,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs @items: Array[Hash[Symbol, untyped]]
   # @rbs @source: String
   # @rbs @options: Hash[Symbol, untyped]
+  # @rbs @json_feed: JsonFeed?
   # @rbs @etag: String?
   # @rbs @last_modified: String?
   # @rbs @entry_contexts: Hash[Hash[Symbol, untyped], Hash[Symbol, untyped]]
@@ -24,6 +25,9 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   attr_reader :etag #: String?
   attr_reader :last_modified #: String?
   attr_reader :source_url #: String?
+  attr_reader :raw_json #: Hash[String, untyped]?
+  attr_reader :home_page_url, :feed_url, :favicon, :next_url, :user_comment #: String?
+  attr_reader :authors, :hubs, :expired #: untyped
   alias entries items #: Array[Hash[Symbol, untyped]]
 
   @@feed_tags = %i[
@@ -66,6 +70,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     @options = {} #: Hash[Symbol, untyped]
     @options.update(options)
     @source_url = options[:source_url]
+    @json_feed = nil
+    @raw_json = nil
     @entry_contexts = {} #: Hash[Hash[Symbol, untyped], Hash[Symbol, untyped]]
     @entry_contexts.compare_by_identity
 
@@ -80,6 +86,13 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (?source_url: String?, ?mappings: Hash[Symbol, untyped]) -> Array[NormalizedEntry]
   def normalized_entries(source_url: nil, mappings: {})
+    json_feed = @json_feed
+    if json_feed
+      raise ArgumentError, "XML mappings are not supported for JSON Feed" unless mappings.empty?
+
+      return items.map { |item| json_feed.normalized_entry(item, source_url: source_url || @source_url) }
+    end
+
     EntryNormalizer.validate_mappings(mappings)
     feed_authors = normalized_feed_authors
     items.map do |item|
@@ -117,6 +130,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs () -> Symbol
   def feed_type
+    return :json_feed if @json_feed
+
     atom_namespaced_feed = source.match?(/<(atom:)?feed\b[^>]*xmlns(:\w+)?=['"][^'"]*atom/i)
     return :atom if atom_namespaced_feed
     return :rss2 if source.match?(/<rss[^>]*version=['"]2/i)
@@ -128,6 +143,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs () -> bool
   def valid?
+    return true if @json_feed
+
     return false if items.empty?
 
     title_value = instance_variable_get(:@title)
@@ -212,7 +229,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (?Hash[Symbol, untyped]) -> Hash[Symbol, untyped]
   def as_json(_options = {})
-    hash = {} #: Hash[Symbol, untyped]
+    raw_json = @raw_json
+    hash = raw_json ? raw_json.transform_keys(&:to_sym) : {} #: Hash[Symbol, untyped]
 
     @@feed_tags.each do |tag|
       tag_cleaned = clean_tag(tag)
@@ -237,6 +255,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (?format: Symbol) -> String
   def to_xml(format: :rss2)
+    raise SimpleRSSError, "JSON Feed to XML conversion is not supported" if @json_feed
+
     case format
     when :rss2 then to_rss2_xml
     when :atom then to_atom_xml
@@ -339,6 +359,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
     def build_request(uri, options)
       request = Net::HTTP::Get.new(uri)
+      request["Accept"] = "application/feed+json, application/rss+xml, application/atom+xml, application/json, application/xml, text/xml, */*"
       request["User-Agent"] = "SimpleRSS/#{VERSION}"
 
       # Conditional GET headers
@@ -386,6 +407,27 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs () -> void
   def parse
+    prefix = @source.b.sub(/\A\xEF\xBB\xBF/n, "").lstrip
+    return parse_xml unless prefix.match?(/\A(?:[\{\["0-9-]|true\b|false\b|null\b)/n)
+
+    json_feed = JsonFeed.new(@source)
+    @json_feed = json_feed
+    @raw_json = json_feed.document
+    JsonFeed::FEED_FIELDS.each do |field|
+      instance_variable_set("@#{field}", json_feed.document[field])
+      self.class.attr_reader(field)
+    end
+    @link = json_feed.document["home_page_url"]
+    self.class.attr_reader(:link)
+    @items = json_feed.items
+    @items.each do |item|
+      item.define_singleton_method(:method_missing) { |name, *_args| self[name] }
+      add_item_media_helpers(item)
+    end
+  end
+
+  # @rbs () -> void
+  def parse_xml
     raise SimpleRSSError, "Poorly formatted feed" unless @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>}mi
 
     # Feed's title and link
@@ -916,6 +958,8 @@ end
 
 require_relative "simple-rss/xml_element"
 require_relative "simple-rss/normalized_entry"
+require_relative "simple-rss/json_feed"
+require_relative "simple-rss/json_entry_normalizer"
 require_relative "simple-rss/entry_normalizer"
 
 class SimpleRSSError < StandardError # rubocop:disable Style/OneClassPerFile
