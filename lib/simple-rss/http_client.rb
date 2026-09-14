@@ -84,6 +84,7 @@ class SimpleRSS::HTTPClient
   def perform(uri)
     visited = {} #: Hash[String, bool]
     redirects = @policy ? 0 : (@options[:_redirects] || 0)
+    redirect_error = @policy ? SimpleRSS::RedirectError : SimpleRSSError
     loop do
       raise SimpleRSS::RedirectError, "Redirect loop detected" if @policy && visited[uri.to_s]
 
@@ -95,11 +96,8 @@ class SimpleRSS::HTTPClient
       return [response, uri] unless location
 
       redirects += 1
-      if redirects > @redirect_limit
-        raise SimpleRSS::RedirectError, "Too many redirects" if @policy
+      raise redirect_error, "Too many redirects" if redirects > @redirect_limit
 
-        raise SimpleRSSError, "Too many redirects"
-      end
       next_uri = URI.join(uri.to_s, location)
       next_uri = SimpleRSS::RequestPolicy.parse_url(next_uri.to_s) if @policy
       strip_credentials if @policy && origin(uri) != origin(next_uri)
