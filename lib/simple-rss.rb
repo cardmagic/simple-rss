@@ -314,8 +314,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       require "net/http"
       require "uri"
 
-      uri = URI.parse(url)
-      response, final_uri = perform_fetch(uri, options)
+      require_relative "simple-rss/http_client"
+      response, final_uri = HTTPClient.new(options).get(url)
 
       return nil if response.is_a?(Net::HTTPNotModified)
 
@@ -328,61 +328,10 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       feed
     end
 
-    private
-
-    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
-    def perform_fetch(uri, options)
-      http = build_http(uri, options)
-      request = build_request(uri, options)
-
-      response = http.request(request)
-      handle_redirect(response, uri, options) || [response, uri]
-    end
-
-    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
-    def build_http(uri, options)
-      host = uri.host || raise(SimpleRSSError, "Invalid URL: missing host")
-      http = Net::HTTP.new(host, uri.port)
-      http.use_ssl = uri.scheme == "https"
-
-      timeout = options[:timeout]
-      if timeout
-        http.open_timeout = timeout
-        http.read_timeout = timeout
-      end
-
-      http
-    end
-
-    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
-    def build_request(uri, options)
-      request = Net::HTTP::Get.new(uri)
-      request["Accept"] = "application/feed+json, application/rss+xml, application/atom+xml, application/json, application/xml, text/xml, */*"
-      request["User-Agent"] = "SimpleRSS/#{VERSION}"
-
-      # Conditional GET headers
-      request["If-None-Match"] = options[:etag] if options[:etag]
-      request["If-Modified-Since"] = options[:last_modified] if options[:last_modified]
-
-      # Custom headers
-      options[:headers]&.each { |key, value| request[key] = value }
-
-      request
-    end
-
-    # @rbs (untyped, untyped, Hash[Symbol, untyped]) -> untyped
-    def handle_redirect(response, uri, options)
-      return nil unless response.is_a?(Net::HTTPRedirection)
-      return nil if options[:follow_redirects] == false
-
-      location = response["Location"]
-      return nil unless location
-
-      redirects = (options[:_redirects] || 0) + 1
-      raise SimpleRSSError, "Too many redirects" if redirects > 5
-
-      new_options = options.merge(_redirects: redirects)
-      perform_fetch(URI.join(uri.to_s, location), new_options)
+    # @rbs (String, ?Hash[Symbol, untyped]) -> Array[Hash[Symbol, untyped]]
+    def discover(url, options = {})
+      require_relative "simple-rss/discovery"
+      Discovery.new(options).discover(url)
     end
   end
 
@@ -426,7 +375,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs () -> void
   def parse_xml
-    raise SimpleRSSError, "Poorly formatted feed" unless @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>}mi
+    raise SimpleRSSError, "Poorly formatted feed" unless @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>|<(channel|feed)\b[^>]*?/\s*>}mi
 
     # Feed's title and link
     feed_content = Regexp.last_match(1) if @source =~ %r{(.*?)<(rss:|atom:)?(item|entry).*?>.*?</(rss:|atom:)?(item|entry)>}mi
@@ -962,3 +911,5 @@ require_relative "simple-rss/entry_normalizer"
 
 class SimpleRSSError < StandardError # rubocop:disable Style/OneClassPerFile
 end
+
+require_relative "simple-rss/request_errors"

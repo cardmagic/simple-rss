@@ -4,6 +4,8 @@ gemspec
 
 group :test do
   gem "simplecov", require: false
+  gem "nokogiri", ">= 1.16", "< 2", require: false
+  gem "feedbag", require: false
 end
 
 group :development do
