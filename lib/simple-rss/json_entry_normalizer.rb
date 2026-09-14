@@ -4,6 +4,9 @@ require "uri"
 require "date"
 
 class SimpleRSS::JsonEntryNormalizer
+  RFC3339_TIMESTAMP = /\A\d{4}-\d{2}-\d{2}[tT]
+                      (?:[01]\d|2[0-3]):[0-5]\d:(?:[0-5]\d|60)(?:\.\d+)?
+                      (?:[zZ]|[+-](?:[01]\d|2[0-3]):[0-5]\d)\z/x
   FIELDS = {
     title: "title", content_html: "content_html", content_text: "content_text", summary: "summary"
   }.freeze
@@ -66,7 +69,7 @@ class SimpleRSS::JsonEntryNormalizer
   def read_date(source, field)
     value = @item[source]
     return if value.nil?
-    return DateTime.rfc3339(value).to_time if value.is_a?(String) && value.match?(/\A\d{4}-\d\d-\d\d[tT]\d\d:\d\d:\d\d(?:\.\d+)?(?:[zZ]|[+-]\d\d:\d\d)\z/)
+    return DateTime.rfc3339(value, Date::GREGORIAN).to_time if value.is_a?(String) && value.match?(RFC3339_TIMESTAMP)
 
     issue(field, :invalid_date, value, source)
     nil

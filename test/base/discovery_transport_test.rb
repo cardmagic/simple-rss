@@ -29,8 +29,8 @@ class DiscoveryTransportTest < Test::Unit::TestCase
 
   def test_malformed_urls_and_schemes_fail_before_connecting
     with_replaced_method(TCPSocket, :open, ->(*) { flunk "Invalid URL reached the socket" }) do
-      ["", "/relative", "ftp://example.com/feed", "file:///tmp/feed", "mailto:reader@example.com", "javascript:alert(1)", "http://", "http://[broken", "http://example.com:0", "http://example.com:65536", "https://user:password@example.com/", "user:password@example.com"].each do |url|
-        assert_raise(SimpleRSS::PolicyError, url) { SimpleRSS.discover(url) }
+      [nil, 123, [], {}, "", "/relative", "ftp://example.com/feed", "file:///tmp/feed", "mailto:reader@example.com", "javascript:alert(1)", "http://", "http://[broken", "http://example.com:0", "http://example.com:65536", "https://user:password@example.com/", "user:password@example.com"].each do |url|
+        assert_raise(SimpleRSS::PolicyError, url.inspect) { SimpleRSS.discover(url) }
       end
     end
   end
@@ -339,6 +339,19 @@ class DiscoveryTransportTest < Test::Unit::TestCase
       assert_nil SimpleRSS.fetch(url, network_policy: :unrestricted, timeout: 1, etag: feed.etag, last_modified: feed.last_modified)
       assert_include requests.last, 'If-None-Match: "fixture"'
       assert_include requests.last, "If-Modified-Since: #{headers["Last-Modified"]}"
+    end
+  end
+
+  def test_bodyless_success_responses_raise_feed_errors
+    with_server([[204, {}, ""]]) do |url, _requests|
+      assert_raise(SimpleRSS::DiscoveryError) { SimpleRSS.discover(url, network_policy: :unrestricted, timeout: 1) }
+    end
+
+    [{}, { network_policy: :unrestricted }].each do |options|
+      with_server([[204, {}, ""]]) do |url, _requests|
+        error = assert_raise(SimpleRSSError) { SimpleRSS.fetch(url, options.merge(timeout: 1)) }
+        assert_equal "Poorly formatted feed", error.message
+      end
     end
   end
 

@@ -16,7 +16,22 @@ A simple, flexible, extensible, and liberal RSS, Atom, and JSON Feed reader for 
 - Extensible tag definitions
 - No mandatory runtime gem dependencies; website discovery uses optional Nokogiri
 
-## What's New in 2.x
+## What's New in 2.3.0
+
+- **Website discovery** - Find advertised RSS, Atom, and JSON feeds with
+  `SimpleRSS.discover("example.com")`. Bare domains default to HTTPS, and
+  requests have destination checks, timeouts, and size limits. Existing `fetch`
+  callers can opt into these request controls with `network_policy`.
+- **Normalized entries** - Use `normalized_entries` for consistent URLs, dates,
+  content, authors, categories, and attachments while retaining raw feed data.
+- **JSON Feed** - Parse JSON Feed 1.0 and 1.1 through the existing `parse` and
+  `fetch` APIs, with the same normalized entry interface as RSS and Atom.
+- **Parser fixes** - Correct Atom category terms and relation links, handle
+  malformed dates during ordering, and accept self-closing empty feeds.
+
+See the [2.3.0 release notes](CHANGELOG.md#230) for compatibility details.
+
+## Earlier 2.x Features
 
 See the [changelog](CHANGELOG.md) for release history and unreleased changes.
 
@@ -563,7 +578,9 @@ valid modification date when publication is invalid or absent.
 
 UTF-8 strings and readable IO accept ordinary leading JSON whitespace and one
 UTF-8 BOM at the very start, before whitespace. Embedded or repeated BOMs are
-rejected. `source` preserves the original input. This is a parser, not a complete
+rejected, as are invalid UTF-8 bytes and numbers that overflow Ruby's floating-point
+range. Large integer IDs retain their full precision. `source` preserves the
+original input. This is a parser, not a complete
 standards validator: it does not validate URL reachability, language tags, ID
 uniqueness across updates, or publisher extension schemas.
 `SimpleRSS.valid?(source)` reports parseability. A parsed JSON feed's instance

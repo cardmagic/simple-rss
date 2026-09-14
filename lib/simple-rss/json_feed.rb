@@ -15,7 +15,10 @@ class SimpleRSS::JsonFeed
 
   # @rbs (String) -> void
   def initialize(source)
-    @document = JSON.parse(source.b.sub(/\A\xEF\xBB\xBF/n, "").force_encoding(Encoding::UTF_8))
+    source = source.b.sub(/\A\xEF\xBB\xBF/n, "").force_encoding(Encoding::UTF_8)
+    raise SimpleRSSError, "Malformed JSON Feed: invalid UTF-8" unless source.valid_encoding?
+
+    @document = JSON.parse(source)
     validate
     freeze_data(@document)
     @originals = {} #: Hash[Hash[Symbol, untyped], Hash[String, untyped]]
@@ -40,6 +43,7 @@ class SimpleRSS::JsonFeed
   # @rbs () -> void
   def validate
     check_type(document, Hash, "feed")
+    validate_numbers(document)
     required_string(document, "version", "feed")
     raise SimpleRSSError, "Unsupported JSON Feed version: #{document["version"].inspect}" unless VERSIONS.include?(document["version"])
 
@@ -54,6 +58,16 @@ class SimpleRSS::JsonFeed
       %w[type url].each { |field| required_string(hub, field, "hubs[#{index}]") }
     end
     document["items"].each_with_index { |item, index| validate_item(item, "items[#{index}]") }
+  end
+
+  # @rbs (untyped) -> void
+  def validate_numbers(value)
+    case value
+    when Hash then value.each_value { |child| validate_numbers(child) }
+    when Array then value.each { |child| validate_numbers(child) }
+    when Float
+      raise SimpleRSSError, "JSON Feed number exceeds the supported range" unless value.finite?
+    end
   end
 
   # @rbs () -> void
