@@ -578,7 +578,9 @@ valid modification date when publication is invalid or absent.
 
 UTF-8 strings and readable IO accept ordinary leading JSON whitespace and one
 UTF-8 BOM at the very start, before whitespace. Embedded or repeated BOMs are
-rejected. `source` preserves the original input. This is a parser, not a complete
+rejected, as are invalid UTF-8 bytes and numbers that overflow Ruby's floating-point
+range. Large integer IDs retain their full precision. `source` preserves the
+original input. This is a parser, not a complete
 standards validator: it does not validate URL reachability, language tags, ID
 uniqueness across updates, or publisher extension schemas.
 `SimpleRSS.valid?(source)` reports parseability. A parsed JSON feed's instance

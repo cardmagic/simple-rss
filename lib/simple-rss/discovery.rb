@@ -25,12 +25,14 @@ class SimpleRSS::Discovery
 
   # @rbs (String) -> Array[Hash[Symbol, untyped]]
   def discover(url)
+    raise SimpleRSS::PolicyError, "Expected a website URL string" unless url.is_a?(String)
+
     url = "https:#{url}" if url.start_with?("//")
     url = "https://#{url}" unless url.match?(/\A[a-z][a-z\d+.-]*:/i)
     response, uri = SimpleRSS::HTTPClient.new(@options).get(url)
     raise SimpleRSS::HTTPError, response.code.to_i unless response.is_a?(Net::HTTPSuccess)
 
-    candidates(response.body, uri, response.content_type, response.type_params["charset"])
+    candidates(response.body.to_s, uri, response.content_type, response.type_params["charset"])
   end
 
   private

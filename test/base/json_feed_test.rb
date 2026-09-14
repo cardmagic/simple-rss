@@ -191,6 +191,39 @@ class JsonFeedTest < Test::Unit::TestCase
     assert_equal(["attachments[0].size_in_bytes", "attachments[0].duration_in_seconds"], entry.issues.map { |issue| issue[:source] })
   end
 
+  def test_rfc3339_rejects_out_of_range_clock_and_offset_components
+    invalid = %w[
+      2026-09-01T24:00:00Z 2026-09-01T24:01:00Z 2026-09-01T12:60:00Z
+      2026-09-01T00:00:00+25:00 2026-09-01T00:00:00-24:00
+      2026-09-01T00:00:00+00:60 2026-09-01T00:00:00-00:99
+    ]
+    invalid.each do |value|
+      feed = parse_items([{ id: "1", content_text: "Hi", date_published: value, date_modified: value }])
+      entry = feed.normalized_entries.first
+      assert_nil entry.published_at, value
+      assert_nil entry.updated_at, value
+      assert_equal(%w[date_published date_modified], entry.issues.map { |issue| issue[:source] })
+      assert_equal value, entry.raw["date_published"]
+      assert_empty feed.items_since(Time.utc(2026))
+    end
+  end
+
+  def test_rfc3339_accepts_boundary_offsets_and_uses_gregorian_dates
+    expected = {
+      "2026-09-01T23:59:59.125+23:59" => Time.utc(2026, 9, 1, 0, 0, 59.125),
+      "2026-09-01t00:00:00-23:59" => Time.utc(2026, 9, 1, 23, 59),
+      "1582-10-10T00:00:00Z" => Time.utc(1582, 10, 10)
+    }
+    expected.each do |value, time|
+      entry = parse_items([{ id: "1", content_text: "Hi", date_published: value }]).normalized_entries.first
+      assert_equal time, entry.published_at
+      assert_empty entry.issues
+    end
+    entry = parse_items([{ id: "1", content_text: "Hi", date_published: "1500-02-29T00:00:00Z" }]).normalized_entries.first
+    assert_nil entry.published_at
+    assert_equal :invalid_date, entry.issues.first[:code]
+  end
+
   def test_raw_and_serialized_representations_are_explicit_and_immutable
     feed = fixture("1_1")
     before = feed.to_json
@@ -233,6 +266,36 @@ class JsonFeedTest < Test::Unit::TestCase
     end
     assert_raise(SimpleRSSError) { SimpleRSS.parse(" \uFEFF#{source}") }
     assert_raise(SimpleRSSError) { SimpleRSS.parse("\uFEFF\uFEFF#{source}") }
+  end
+
+  def test_invalid_utf8_is_rejected_before_exposing_feed_data
+    source = JSON.generate(version: "https://jsonfeed.org/version/1.1", title: "Example", items: [{ id: "1", content_text: "payload" }])
+    ["\xFF".b, "\xC0\x80".b, "\xE2\x82".b].each do |invalid|
+      body = source.b.sub("payload", invalid)
+      [body, StringIO.new(body)].each do |input|
+        error = assert_raise(SimpleRSSError) { SimpleRSS.parse(input) }
+        assert_include error.message, "invalid UTF-8"
+      end
+      assert_false SimpleRSS.valid?(body)
+    end
+  end
+
+  def test_overflowing_json_numbers_cannot_collapse_identifiers_or_break_serialization
+    sources = [
+      '{"version":"https://jsonfeed.org/version/1.1","title":"QA","items":[{"id":1e999,"content_text":"One"},{"id":2e999,"content_text":"Two"}]}',
+      '{"version":"https://jsonfeed.org/version/1.1","title":"QA","items":[],"_extension":{"numbers":[-1e999]}}',
+      '{"version":"https://jsonfeed.org/version/1.1","title":"QA","items":[{"id":"one","content_text":"One","attachments":[{"url":"https://example.com/audio","mime_type":"audio/mpeg","size_in_bytes":1e999}]}]}'
+    ]
+    sources.each do |source|
+      error = assert_raise(SimpleRSSError) { SimpleRSS.parse(source) }
+      assert_include error.message, "number exceeds the supported range"
+      assert_false SimpleRSS.valid?(source)
+    end
+    identifier = 10**100
+    feed = parse_items([{ id: identifier, content_text: "Large integer" }], _number: 1.5)
+    assert_equal identifier.to_s, feed.normalized_entries.first.identifier
+    assert_equal identifier, feed.raw_json["items"].first["id"]
+    assert_equal 1.5, JSON.parse(feed.to_json)["_number"]
   end
 
   def test_invalid_json_and_structures_raise_library_errors

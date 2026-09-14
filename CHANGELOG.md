@@ -9,6 +9,18 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ### 2.3.0
 
+- Reject non-string discovery inputs with `PolicyError` instead of
+  `NoMethodError` during HTTPS normalization.
+- Reject overflowing JSON numbers instead of collapsing numeric identifiers to
+  `Infinity` or exposing extension data that cannot be serialized as JSON.
+- Reject invalid UTF-8 in JSON Feed input before exposing strings that can fail
+  during serialization or downstream processing.
+- Handle bodyless successful HTTP responses without `NoMethodError`: `fetch`
+  reports a malformed feed, while `discover` applies its usual empty-page or
+  parsing-error behavior.
+- Reject out-of-range JSON Feed timestamp hours and offsets as normalization
+  issues instead of silently shifting dates or treating invalid offsets as UTC.
+  Use the Gregorian calendar consistently for historical JSON Feed timestamps.
 - Add `SimpleRSS.discover` for advertised RSS, Atom, and JSON Feed links, using
   optional Nokogiri HTML5 parsing. Return ordered, deduplicated candidates with
   titles, type hints, and verification status; recognize direct empty feeds.
