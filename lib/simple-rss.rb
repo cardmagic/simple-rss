@@ -17,11 +17,13 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs @options: Hash[Symbol, untyped]
   # @rbs @etag: String?
   # @rbs @last_modified: String?
+  # @rbs @entry_contexts: Hash[Hash[Symbol, untyped], Hash[Symbol, untyped]]
 
   attr_reader :items #: Array[Hash[Symbol, untyped]]
   attr_reader :source #: String
   attr_reader :etag #: String?
   attr_reader :last_modified #: String?
+  attr_reader :source_url #: String?
   alias entries items #: Array[Hash[Symbol, untyped]]
 
   @@feed_tags = %i[
@@ -63,6 +65,9 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     @items = [] #: Array[Hash[Symbol, untyped]]
     @options = {} #: Hash[Symbol, untyped]
     @options.update(options)
+    @source_url = options[:source_url]
+    @entry_contexts = {} #: Hash[Hash[Symbol, untyped], Hash[Symbol, untyped]]
+    @entry_contexts.compare_by_identity
 
     parse
   end
@@ -72,6 +77,18 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     self
   end
   alias feed channel
+
+  # @rbs (?source_url: String?, ?mappings: Hash[Symbol, untyped]) -> Array[NormalizedEntry]
+  def normalized_entries(source_url: nil, mappings: {})
+    EntryNormalizer.validate_mappings(mappings)
+    feed_authors = normalized_feed_authors
+    items.map do |item|
+      context = @entry_contexts[item] || raise(SimpleRSSError, "Cannot normalize an item without its original XML source")
+      element = XmlElement.new(context[:name], context[:attributes], context[:content], context[:parent])
+      EntryNormalizer.new(element, item, source_url: source_url || @source_url, mappings: mappings,
+                                         raw_xml: context[:xml], feed_authors: feed_authors).entry
+    end
+  end
 
   # Iterate over all items in the feed
   #
@@ -280,14 +297,14 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       require "uri"
 
       uri = URI.parse(url)
-      response = perform_fetch(uri, options)
+      response, final_uri = perform_fetch(uri, options)
 
       return nil if response.is_a?(Net::HTTPNotModified)
 
       raise SimpleRSSError, "HTTP #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
 
       body = response.body.force_encoding(Encoding::UTF_8)
-      feed = parse(body, options)
+      feed = parse(body, options.merge(source_url: final_uri.to_s))
       feed.instance_variable_set(:@etag, response["ETag"])
       feed.instance_variable_set(:@last_modified, response["Last-Modified"])
       feed
@@ -301,7 +318,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       request = build_request(uri, options)
 
       response = http.request(request)
-      handle_redirect(response, options) || response
+      handle_redirect(response, uri, options) || [response, uri]
     end
 
     # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
@@ -334,8 +351,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       request
     end
 
-    # @rbs (untyped, Hash[Symbol, untyped]) -> untyped
-    def handle_redirect(response, options)
+    # @rbs (untyped, untyped, Hash[Symbol, untyped]) -> untyped
+    def handle_redirect(response, uri, options)
       return nil unless response.is_a?(Net::HTTPRedirection)
       return nil if options[:follow_redirects] == false
 
@@ -346,7 +363,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
       raise SimpleRSSError, "Too many redirects" if redirects > 5
 
       new_options = options.merge(_redirects: redirects)
-      perform_fetch(URI.parse(location), new_options)
+      perform_fetch(URI.join(uri.to_s, location), new_options)
     end
   end
 
@@ -357,6 +374,15 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   XML_TAG_PATTERN = %r{<!--.*?-->|<!\[CDATA\[.*?\]\]>|<\?.*?\?>|<(/?)([\w:.-]+)((?:[^<>"']|"[^"]*"|'[^']*')*)>}m
 
   private
+
+  # @rbs () -> Array[XmlElement]
+  def normalized_feed_authors
+    document = XmlElement.new("", "", @source, { namespaces: {}, base_urls: [] })
+    feed = document.children.find { |element| element.matches?("feed", ATOM_NAMESPACE) }
+    return [] unless feed
+
+    feed.children.select { |element| element.matches?("author", ATOM_NAMESPACE) }
+  end
 
   # @rbs () -> void
   def parse
@@ -400,13 +426,18 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     end
 
     # RSS items' title, link, and description
-    namespace_contexts = entry_namespaces
+    namespace_contexts = entry_contexts
     entry_pattern = %r{<(rss:|atom:)?(item|entry)([\s][^>]*)?>(.*?)</(rss:|atom:)?(item|entry)>}mi
     position = 0
     while (match = entry_pattern.match(@source, position))
       position = match.end(0)
       item = {} #: Hash[Symbol, untyped]
-      namespaces = namespace_contexts[match.begin(0)]
+      parent_context = namespace_contexts[match.begin(0)]
+      namespaces = parent_context && parent_context[:namespaces].merge(namespace_attributes(match[3].to_s))
+      @entry_contexts[item] = {
+        name: "#{match[1]}#{match[2]}", attributes: match[3].to_s, content: match[4].to_s,
+        parent: parent_context || { namespaces: {}, base_urls: [] }, xml: match[0]
+      }
       @@item_tags.each do |tag|
         next if tag.to_s.strip.empty?
 
@@ -498,37 +529,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (String) -> Array[[String, String, String?]]
   def child_elements(content)
-    elements = [] #: Array[[String, String, String?]]
-    current_element = nil #: [String, String, String?]?
-    depth = 0
-    body_start = 0
-    position = 0
-
-    while (token = XML_TAG_PATTERN.match(content, position))
-      position = token.end(0)
-      attributes = token[3]
-      next unless attributes
-
-      if token[1] == "/"
-        depth = [depth - 1, 0].max
-        if depth.zero? && current_element
-          current_element[2] = content[body_start...token.begin(0)]
-          current_element = nil
-        end
-        next
-      end
-
-      self_closing = attributes.rstrip.end_with?("/")
-      if depth.zero?
-        element = [token[2].to_s, attributes, nil] #: [String, String, String?]
-        elements << element
-        current_element = element unless self_closing
-        body_start = token.end(0)
-      end
-      depth += 1 unless self_closing
-    end
-
-    elements
+    XmlElement.child_elements(content)
   end
 
   # @rbs (Hash[Symbol, untyped], String, Hash[String, String], String?) -> void
@@ -556,10 +557,10 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     item[:category] = array_tag?(:category) ? values : values.first
   end
 
-  # @rbs () -> Hash[Integer, Hash[String, String]]
-  def entry_namespaces
-    contexts = {} #: Hash[Integer, Hash[String, String]]
-    scopes = [{}] #: Array[Hash[String, String]]
+  # @rbs () -> Hash[Integer, Hash[Symbol, untyped]]
+  def entry_contexts
+    contexts = {} #: Hash[Integer, Hash[Symbol, untyped]]
+    scopes = [{ namespaces: {}, base_urls: [] }] #: Array[Hash[Symbol, untyped]]
     position = 0
 
     while (token = XML_TAG_PATTERN.match(@source, position))
@@ -572,10 +573,17 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
         next
       end
 
-      namespaces = scopes.fetch(-1).merge(namespace_attributes(attributes))
+      parent = scopes.fetch(-1)
       tag = token[2].to_s.split(":").last
-      contexts[token.begin(0).to_i] = namespaces if %w[item entry].include?(tag&.downcase)
-      scopes << namespaces unless attributes.rstrip.end_with?("/")
+      contexts[token.begin(0).to_i] = parent if %w[item entry].include?(tag&.downcase)
+      base_url = xml_attributes(attributes)["xml:base"]
+      base_urls = parent[:base_urls].dup
+      base_urls << CGI.unescapeHTML(base_url) if base_url
+      context = {
+        namespaces: parent[:namespaces].merge(namespace_attributes(attributes)),
+        base_urls: base_urls
+      }
+      scopes << context unless attributes.rstrip.end_with?("/")
     end
 
     contexts
@@ -596,13 +604,7 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
 
   # @rbs (String) -> Hash[String, String]
   def xml_attributes(attributes)
-    values = {} #: Hash[String, String]
-    attributes.scan(/([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/m) do
-      name = Regexp.last_match(1)
-      value = Regexp.last_match(2) || Regexp.last_match(3)
-      values[name] = value if name && value
-    end
-    values
+    XmlElement.attributes(attributes)
   end
 
   # @rbs (String, String?) -> void
@@ -911,6 +913,10 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
     result.encode(Encoding::UTF_8)
   end
 end
+
+require_relative "simple-rss/xml_element"
+require_relative "simple-rss/normalized_entry"
+require_relative "simple-rss/entry_normalizer"
 
 class SimpleRSSError < StandardError # rubocop:disable Style/OneClassPerFile
 end

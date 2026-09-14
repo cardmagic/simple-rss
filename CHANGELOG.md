@@ -7,6 +7,14 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
 
 ## Unreleased
 
+- Add `normalized_entries`, an optional immutable RSS/Atom view with consistent
+  article URLs, separate publication/update dates, typed content and summaries,
+  category terms, authors, and associated attachment metadata. Preserve raw
+  items, XML, field sources, and normalization issues without changing existing
+  access or serialization. Support per-call content/keyword mappings such as
+  `full-text`, with no global tag changes. Resolve relative URLs using `xml:base`
+  and a supplied or fetched source URL; fetch now retains the final response URL
+  and resolves relative redirects. ([#59](https://github.com/cardmagic/simple-rss/issues/59))
 - Parse Atom 1.0 category terms from attributes, so scalar category access and
   `array_tags: [:category]` work with `items_by_category`. Preserve source order
   and duplicates, skip missing or blank terms, and resolve namespace declarations

@@ -18,7 +18,12 @@ bundle exec rake console                 # Interactive console
 
 ## Architecture
 
-Single-file library (`lib/simple-rss.rb`) using regex-based XML parsing for flexibility with malformed feeds.
+The core library (`lib/simple-rss.rb`) uses regex-based XML parsing for flexibility
+with malformed feeds. `lib/simple-rss/xml_element.rb` holds shared XML tokenization
+and scoped element metadata. The optional normalized view lives in
+`entry_normalizer.rb` and the format-independent `normalized_entry.rb` value object
+under `lib/simple-rss/`. Preserve the existing raw parser and serialization
+contracts when extending normalization.
 
 **Tag Syntax** (extend via `SimpleRSS.item_tags <<`):
 - `tag` - simple element extraction

@@ -1,0 +1,21 @@
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:atom="http://www.w3.org/2005/Atom" xml:base="https://example.com/blog/">
+  <channel>
+    <title>Example feed</title>
+    <item xml:base="posts/">
+      <guid isPermaLink="false">opaque:%2F:001</guid>
+      <title>Ruby &amp; feeds</title>
+      <link xml:base="../">article?one=1&amp;two=2</link>
+      <pubDate>Sat, 12 Sep 2026 10:00:00 GMT</pubDate>
+      <atom:updated>2026-09-13T11:00:00Z</atom:updated>
+      <description><![CDATA[<p>A summary.</p>]]></description>
+      <content:encoded><![CDATA[<p>Full &amp; complete.</p>]]></content:encoded>
+      <category domain="urn:topics">ruby</category>
+      <category>feeds</category>
+      <category>ruby</category>
+      <category> </category>
+      <enclosure url="/audio/one.mp3" type="audio/mpeg" length="1234"/>
+      <enclosure url="/images/two.png" type="image/png" length="4321"/>
+    </item>
+  </channel>
+</rss>
