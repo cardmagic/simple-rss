@@ -26,6 +26,20 @@ class JsonFeedTest < Test::Unit::TestCase
     assert feed.valid?
   end
 
+  def test_expired_accepts_only_booleans_when_present
+    assert_nil parse_items([]).expired
+    [true, false].each do |value|
+      feed = parse_items([], expired: value)
+      assert_equal value, feed.expired
+      assert_equal value, feed.raw_json["expired"]
+      assert_equal value, feed.to_hash[:expired]
+    end
+    ["false", "true", 0, 1, nil, [], {}].each do |value|
+      error = assert_raise(SimpleRSSError) { parse_items([], expired: value) }
+      assert_include error.message, "feed.expired must be a boolean"
+    end
+  end
+
   def test_spec_fixtures_preserve_feed_metadata_and_extensions
     %w[1 1_1].each do |version|
       feed = fixture(version)

@@ -369,7 +369,8 @@ Parsing requires a supported version, string feed title, an items array, and
 objects with nonblank string/numeric IDs and at least one string content field.
 Titleless items and empty feeds are supported. Malformed JSON, missing required
 fields, malformed author/tag/attachment structures, and wrong known field types
-raise `SimpleRSSError` with a field path. Invalid required item data rejects the
+raise `SimpleRSSError` with a field path. When supplied, `expired` must be a
+JSON boolean; strings such as `"false"` are rejected. Invalid required item data rejects the
 whole feed; items are never assigned invented IDs or returned partially parsed.
 Invalid optional dates and attachment numbers are preserved in raw data and
 reported in `issues`, with `nil` normalized values. Dates are never substituted

@@ -27,7 +27,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   attr_reader :source_url #: String?
   attr_reader :raw_json #: Hash[String, untyped]?
   attr_reader :home_page_url, :feed_url, :favicon, :next_url, :user_comment #: String?
-  attr_reader :authors, :hubs, :expired #: untyped
+  attr_reader :authors, :hubs #: untyped
+  attr_reader :expired #: bool?
   alias entries items #: Array[Hash[Symbol, untyped]]
 
   @@feed_tags = %i[
@@ -87,11 +88,8 @@ class SimpleRSS # rubocop:disable Metrics/ClassLength
   # @rbs (?source_url: String?, ?mappings: Hash[Symbol, untyped]) -> Array[NormalizedEntry]
   def normalized_entries(source_url: nil, mappings: {})
     json_feed = @json_feed
-    if json_feed
-      raise ArgumentError, "XML mappings are not supported for JSON Feed" unless mappings.empty?
-
-      return items.map { |item| json_feed.normalized_entry(item, source_url: source_url || @source_url) }
-    end
+    raise ArgumentError, "XML mappings are not supported for JSON Feed" if json_feed && !mappings.empty?
+    return items.map { |item| json_feed.normalized_entry(item, source_url: source_url || @source_url) } if json_feed
 
     EntryNormalizer.validate_mappings(mappings)
     feed_authors = normalized_feed_authors

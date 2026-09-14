@@ -47,12 +47,21 @@ class SimpleRSS::JsonFeed
     check_type(document["items"], Array, "items")
     optional_strings(document, FEED_STRINGS, "feed")
     optional_strings(document, ["language"], "feed") if version_1_1?
+    validate_expiration
     validate_authors(document, "feed")
     optional_array(document, "hubs", "feed").each_with_index do |hub, index|
       check_type(hub, Hash, "hubs[#{index}]")
       %w[type url].each { |field| required_string(hub, field, "hubs[#{index}]") }
     end
     document["items"].each_with_index { |item, index| validate_item(item, "items[#{index}]") }
+  end
+
+  # @rbs () -> void
+  def validate_expiration
+    return unless document.key?("expired")
+    return if [true, false].include?(document["expired"])
+
+    raise SimpleRSSError, "JSON Feed feed.expired must be a boolean"
   end
 
   # @rbs (untyped, String) -> void

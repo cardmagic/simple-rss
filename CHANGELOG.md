@@ -13,7 +13,9 @@ repository begins with a 1.1 import, so earlier releases are not reconstructed.
   multiple attachments. Preserve original metadata and extensions in `raw_json`
   and normalized entry `raw`; report recoverable date/number issues. Keep XML
   serialization unchanged and reject JSON-to-XML conversion explicitly.
-  Fetch detects JSON regardless of Content-Type and retains conditional GET.
+  Validate supplied expiration flags as booleans so strings such as `"false"`
+  cannot be mistaken for expired feeds. Fetch detects JSON regardless of
+  Content-Type and retains conditional GET.
   ([#60](https://github.com/cardmagic/simple-rss/issues/60))
 
 - Add `normalized_entries`, an optional immutable RSS/Atom view with consistent
