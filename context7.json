@@ -1,0 +1,25 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/cardmagic/simple-rss",
+  "public_key": "pk_veEo2smPvGYMwP1MncN1A",
+  "projectTitle": "simple-rss (Ruby gem)",
+  "description": "A liberal RSS, Atom, and JSON Feed reader for Ruby. It parses malformed feeds, fetches URLs with conditional GET, discovers feeds that websites advertise, normalizes entries, and serializes parsed feeds to JSON or XML. No runtime dependencies; requires Ruby 3.1+.",
+  "folders": [],
+  "excludeFolders": [
+    "test",
+    "sig",
+    ".github"
+  ],
+  "excludeFiles": [
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "rules": [
+    "Install with gem \"simple-rss\" and require \"simple-rss\". The gem requires Ruby 3.1 or newer and has no runtime dependencies.",
+    "Parse a string or IO with SimpleRSS.parse. Fetch a URL with SimpleRSS.fetch(url), which supports timeouts, custom headers, redirects, and conditional GET.",
+    "SimpleRSS.fetch returns nil when a conditional GET answers 304 Not Modified, so handle nil when you poll with ETag or Last-Modified.",
+    "SimpleRSS.discover finds the feeds that a website advertises. It needs gem \"nokogiri\", \">= 1.16\", \"< 2\" on CRuby; without HTML5 support it raises SimpleRSS::DiscoveryDependencyError before any request.",
+    "Use normalized_entries for consistent URLs, dates, content, authors, categories, and attachments across RSS, Atom, and JSON Feed.",
+    "simple-rss reads feeds and does not generate new ones. To write a parsed XML feed back out, use to_xml(format: :rss2) or to_xml(format: :atom). Calling to_xml on a JSON Feed raises SimpleRSSError; JSON Feed to XML conversion is not supported."
+  ]
+}
